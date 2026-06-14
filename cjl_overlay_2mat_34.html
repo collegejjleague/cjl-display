@@ -126,12 +126,12 @@ html, body {
     align-items:center; font-family:'Barlow',sans-serif;
     letter-spacing:1px; text-transform:uppercase;
   }
-  .section1.supermatch #m3_team3_bg,
-  .section1.supermatch #m3_team4_bg,
-  .section1.supermatch #m3_team3_name,
-  .section1.supermatch #m3_team4_name,
-  .section1.supermatch #m3_team3_score,
-  .section1.supermatch #m3_team4_score { display:none; }
+  .section3.supermatch #m3_team3_bg,
+  .section3.supermatch #m3_team4_bg,
+  .section3.supermatch #m3_team3_name,
+  .section3.supermatch #m3_team4_name,
+  .section3.supermatch #m3_team3_score,
+  .section3.supermatch #m3_team4_score { display:none; }
 
   #m4_bg {
     position:absolute; top:0; left:0;
@@ -229,12 +229,12 @@ html, body {
     align-items:center; font-family:'Barlow',sans-serif;
     letter-spacing:1px; text-transform:uppercase;
   }
-  .section2.supermatch #m4_team3_bg,
-  .section2.supermatch #m4_team4_bg,
-  .section2.supermatch #m4_team3_name,
-  .section2.supermatch #m4_team4_name,
-  .section2.supermatch #m4_team3_score,
-  .section2.supermatch #m4_team4_score { display:none; }
+  .section4.supermatch #m4_team3_bg,
+  .section4.supermatch #m4_team4_bg,
+  .section4.supermatch #m4_team3_name,
+  .section4.supermatch #m4_team4_name,
+  .section4.supermatch #m4_team3_score,
+  .section4.supermatch #m4_team4_score { display:none; }
 </style>
 </head>
 <body>
@@ -417,7 +417,7 @@ const RELAY_URL = 'wss://cjl-relay.onrender.com';
     document.getElementById('m3_match_counter').textContent =
       state.mode==='supermatch' ? 'Supermatch' : 'Match '+state.matchNum+' of '+total;
     renderTimer();
-    document.getElementById('section1').className = state.mode==='supermatch'?'supermatch':'';
+    document.getElementById('section3').className = state.mode==='supermatch'?'supermatch':'';
   }
   function renderTimer() {
     var m=Math.floor(state.timerSeconds/60), s=state.timerSeconds%60;
@@ -567,7 +567,7 @@ const RELAY_URL = 'wss://cjl-relay.onrender.com';
     document.getElementById('m4_match_counter').textContent =
       state.mode==='supermatch' ? 'Supermatch' : 'Match '+state.matchNum+' of '+total;
     renderTimer();
-    document.getElementById('section2').className = state.mode==='supermatch'?'supermatch':'';
+    document.getElementById('section4').className = state.mode==='supermatch'?'supermatch':'';
   }
   function renderTimer() {
     var m=Math.floor(state.timerSeconds/60), s=state.timerSeconds%60;
