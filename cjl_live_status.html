@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CJL Live Status</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Barlow',sans-serif;background:#0f1117;color:#fff;padding:16px;}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;letter-spacing:2px;}
+.status-pill{font-size:11px;padding:4px 10px;border-radius:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.status-pill.live{background:#1d3a2a;color:#4ade80;}
+.status-pill.down{background:#3a1d1d;color:#f87171;}
+.mats{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:20px;}
+.mat-card{background:#1a1d27;border:1px solid #2e3350;border-radius:10px;padding:14px;}
+.mat-card.idle{opacity:0.4;}
+.mat-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;color:#8890aa;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.mat-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;}
+.mat-name{font-weight:700;font-size:15px;}
+.mat-school{font-size:11px;color:#8890aa;text-transform:uppercase;letter-spacing:1px;}
+.mat-score{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;}
+.mat-timer{text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:#8890aa;margin-top:6px;}
+.unavailable{text-align:center;padding:60px 20px;color:#8890aa;}
+.unavailable .big{font-size:40px;margin-bottom:12px;}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="title">CJL LIVE</div>
+  <div class="status-pill down" id="statusPill">CONNECTING...</div>
+</div>
+<div id="content">
+  <div class="unavailable" id="unavailable" style="display:none;">
+    <div class="big">⏸️</div>
+    <div>Live data is currently unavailable.</div>
+    <div style="font-size:12px;margin-top:6px;">Check back during an active tournament.</div>
+  </div>
+  <div class="mats" id="mats"></div>
+</div>
+
+<script>
+// Relay-only — no Sheets fallback. Pure WebSocket subscription.
+const RELAY_URL = 'wss://cjl-relay.onrender.com';
+
+const matStates = {1:null, 2:null, 3:null, 4:null};
+let ws = null;
+let connectedChannels = 0;
+
+function connectMat(matId) {
+  const sock = new WebSocket(RELAY_URL);
+  sock.onopen = function() {
+    sock.send(JSON.stringify({ type: 'join', mat: matId }));
+    connectedChannels++;
+    updateStatus();
+  };
+  sock.onmessage = function(e) {
+    try {
+      const d = JSON.parse(e.data);
+      if (d.type === 'state') {
+        matStates[matId] = d;
+        render();
+      }
+    } catch(err) {}
+  };
+  sock.onclose = function() {
+    connectedChannels = Math.max(0, connectedChannels - 1);
+    updateStatus();
+    setTimeout(function(){ connectMat(matId); }, 5000);
+  };
+  sock.onerror = function() { sock.close(); };
+
+  // Keepalive
+  setInterval(function() {
+    if (sock.readyState === 1) sock.send(JSON.stringify({ type: 'ping' }));
+  }, 25000);
+}
+
+function updateStatus() {
+  const pill = document.getElementById('statusPill');
+  const unavailable = document.getElementById('unavailable');
+  const mats = document.getElementById('mats');
+  if (connectedChannels > 0) {
+    pill.textContent = 'LIVE';
+    pill.className = 'status-pill live';
+    unavailable.style.display = 'none';
+    mats.style.display = 'grid';
+  } else {
+    pill.textContent = 'OFFLINE';
+    pill.className = 'status-pill down';
+    unavailable.style.display = 'block';
+    mats.style.display = 'none';
+  }
+}
+
+function render() {
+  const mats = document.getElementById('mats');
+  mats.innerHTML = '';
+  for (let i = 1; i <= 4; i++) {
+    const s = matStates[i];
+    const card = document.createElement('div');
+    card.className = 'mat-card' + (s ? '' : ' idle');
+    if (!s) {
+      card.innerHTML = '<div class="mat-title">MAT ' + i + '</div><div style="color:#666;font-size:13px;">No active match</div>';
+      mats.appendChild(card);
+      continue;
+    }
+    const m = Math.floor((s.timerSeconds||0)/60), sec = (s.timerSeconds||0)%60;
+    const timerStr = m + ':' + sec.toString().padStart(2,'0');
+    card.innerHTML = `
+      <div class="mat-title">MAT ${i}</div>
+      <div class="mat-row">
+        <div>
+          <div class="mat-name">${s.name1||'—'}</div>
+          <div class="mat-school">${s.school1||''}</div>
+        </div>
+        <div class="mat-score">${s.pts1||0}</div>
+      </div>
+      <div class="mat-row">
+        <div>
+          <div class="mat-name">${s.name2||'—'}</div>
+          <div class="mat-school">${s.school2||''}</div>
+        </div>
+        <div class="mat-score">${s.pts2||0}</div>
+      </div>
+      <div class="mat-timer">${timerStr}</div>
+    `;
+    mats.appendChild(card);
+  }
+}
+
+for (let i = 1; i <= 4; i++) connectMat(i);
+updateStatus();
+render();
+</script>
+</body>
+</html>

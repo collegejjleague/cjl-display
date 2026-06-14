@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SUPERMATCHES</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:1920px;height:1080px;background:#0f1117;font-family:'Barlow Condensed',sans-serif;color:#fff;overflow:hidden;}
+.wrapper{width:100%;height:100%;display:flex;flex-direction:column;padding:28px 40px;}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.header-left{display:flex;align-items:center;gap:16px;}
+.header img{height:48px;opacity:0.9;}
+.header-title{font-size:26px;font-weight:900;letter-spacing:3px;}
+.header-sub{font-size:14px;color:#8890aa;letter-spacing:2px;text-transform:uppercase;font-family:'Barlow',sans-serif;}
+.bracket-container{flex:1;display:flex;align-items:stretch;gap:0;position:relative;}
+.round{display:flex;flex-direction:column;justify-content:space-around;min-width:260px;gap:0;position:relative;z-index:2;}
+.round-label{font-size:11px;color:#8890aa;letter-spacing:2px;text-transform:uppercase;font-family:'Barlow',sans-serif;text-align:center;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #2e3350;}
+.bout{background:#1a1d27;border:1px solid #2e3350;border-radius:8px;padding:0;overflow:hidden;margin:6px 0;transition:border-color 0.3s;min-width:240px;}
+.bout.complete{border-color:#27ae60;}
+.bout-header{font-size:9px;color:#8890aa;letter-spacing:1.5px;text-transform:uppercase;padding:6px 12px 4px;font-family:'Barlow',sans-serif;background:#16182a;}
+.bout-team{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-top:1px solid #22263a;}
+.bout-team.winner{background:rgba(39,174,96,0.1);}
+.bout-team-name{font-size:16px;font-weight:700;color:#ccc;}
+.bout-team-name.winner{color:#fff;font-weight:900;}
+.bout-team-name.tbd{color:#555;font-style:italic;font-weight:400;}
+.bout-team-score{font-size:18px;font-weight:900;color:#fff;min-width:24px;text-align:right;}
+.result-tag{font-size:9px;color:#27ae60;letter-spacing:1px;padding:4px 12px;text-transform:uppercase;font-family:'Barlow',sans-serif;border-top:1px solid #22263a;}
+.champion-box{background:linear-gradient(135deg,#1a2a4a,#2c3e6b);border:2px solid #3d5af1;border-radius:12px;padding:20px 28px;text-align:center;margin:auto 0;}
+.champion-trophy{font-size:32px;margin-bottom:6px;}
+.champion-label{font-size:11px;color:#8890aa;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.champion-name{font-size:24px;font-weight:900;}
+.place-box{background:#1a1d27;border:1px solid #2e3350;border-radius:8px;padding:14px 20px;text-align:center;margin:auto 0;}
+.place-label{font-size:10px;color:#8890aa;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;}
+.place-name{font-size:18px;font-weight:700;color:#ccc;}
+.conn{position:relative;min-width:40px;display:flex;flex-direction:column;justify-content:space-around;}
+/* Supermatches layout */
+.super-grid{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:40px;align-items:center;}
+.super-card{background:#1a1d27;border:1px solid #2e3350;border-radius:12px;overflow:hidden;}
+.super-card.complete{border-color:#27ae60;}
+.super-title{font-size:11px;color:#8890aa;letter-spacing:2px;text-transform:uppercase;padding:12px 16px 8px;background:#16182a;font-family:'Barlow',sans-serif;}
+.super-team{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-top:1px solid #22263a;}
+.super-team.winner{background:rgba(39,174,96,0.1);}
+.super-team-name{font-size:22px;font-weight:700;color:#ccc;}
+.super-team-name.winner{color:#fff;font-weight:900;}
+.super-team-name.tbd{color:#555;font-style:italic;font-weight:400;}
+.super-team-score{font-size:28px;font-weight:900;color:#fff;}
+.super-result{font-size:10px;color:#27ae60;letter-spacing:1px;padding:8px 16px;text-transform:uppercase;font-family:'Barlow',sans-serif;border-top:1px solid #22263a;}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="header">
+    <div class="header-left">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAYAAAA5ZDbSAAANGUlEQVR42u2cW4xd9XXGf+uMZ8YeX8bGFxiDwdg4Dg0mBhuwG0NCqUO4tCkJJFEeKlXioapUtQ+V2qf2oW9t1apVK7UPrdoGFCmoadoCUdRAAiY4GEKgMGAwBgc8xjbGZuzx2J7L+fqwv13vHs6ZCwnMmWF90tacOee/L2d//7X+37rsA4lEIpFIJBKJRCKRSCQSiUQikUgkEolEIpFIJBKJRCKRSCQSiUQikUgkEolEIpFIJBKJRCKRSCQSiUQikZgbkBRTGVMd1/h/IjGrEHPEcnuBjcBp4JWIGJtg7FLgCmCpv/9xYF9EnJyLBNfmALkdwBaTexGwvep6qy5Y0jrg80APsM/bYuALki5Ne2/D9VbSIkl3SeqQ1Cnp65KubDJ+paSvSLrY/y+z5SNpjaSvSVo+1bV8tmDeHFpqeiLilKTvA3dJWgYcBs4Bw8AmoD8iBiT9GrAKqEkaiIiHJe0HrgZ+EBFKgtuP4FFJSyLiqKRHgV8CLgC6/fkaYIWks8BJ4D5gDLhb0nrgBbvqrogYSYLbTEtExFlJN0taFBEPeH1tXKtXARd72xgRT0p6xxPhDU+Ejrm0lM0ZC5ZUA84AvyfpeuA94G3gqJXyoIXYsxHxjKSvSvoa0Av8EFhhix5JgtuB0fPrZN2k1CLih5Jed8h0mS12vS1z2ATXJf0DsAfYCTwcEScl3Qi8GRHjkmKurMOzXi3acrcCl5rE5yLiUINrvshuuQ9YBzwaEc9XxlwPbAb+OSJG5hLBs95FR0Rd0gngVq+jvyPpCPAWMAQMAIcjYo+kVcBVwKeA562mXwdeBT4JLEgX3X4WvBi4DvhmRLwm6Tavu8uAG4BxK+wXI+J7duFXSeoG3gV+KyL+QNKAQ6kn5lKYVJvl5Abwy8BbJvdmr8n7vfz8DfAU8BKwUlIP8BiwBNgcEU8Ci5zh+jFwWSX5MSeKELVZTCzABqA3InZJ+oTX2V1W04vsbl8ClltJb/b63A/cI+krwAlgW0ScdmJkUyni5oIlz0qCI0KSukzGj/x6O/B4RAxHRJm9ujUijpjENV5/AY7YjXea1J2S1tqKN0jaLmmbpDVJ8MxZ7xpgLCIGKm76TbvWLopq0dueEA8BB03enwP3As9HxP3A33q701Y8ClzjSbFD0k0+XuKjJFjSZyVdK6km6TclrayMuVbSnZVxn/TrJf5sq6QLK+NXS/qWpFWSLpT0R36/U9Jtkr7k3HZa8EfknmvOQA14fR0G3nOF6CqvzU943G3A70raSZGS7KdIY/ZKukHSvcDv28J/2y79pKS/BJZHxHeBA8Dtki5q8CKZ6PiQrHg+cCfwILDWWatngGudrdoK/MyfLwC+ape93+PnW4h1epLsd5y8HfgfQMAfOoz6UUT8xCXIa4DvRsSJtOAPd/3tLow5zlotDzmTNerQ5xhFbvmLwLmI+Edgr1X1K8B/RcRfexI8DayTtC0idgNnImLY4dQbwHpJn4uIl4EXLciWJcEfLsldjnexhY5R5J3flLQE+LQt9FPAH0vqs9AaAlYDn/C+w8CFFIWJZT52eU/2OEnyCLBW0i0RUVr3FyXtlLQ6Cf4FW69j0w7Ol/U6bdGLKdKTm4HvAw8A/+H4909c891lldwnaSGw26HTRuCnQEdEjJm46ynqxnXvs8TnfwD4hl37jZKuSIJ/QcRaYC0HdgALyyEWXOMRMQpcQlHsXwu8GBF/5XDpLk+Odxz7fi4ijgPfs0UfAz4jaaMt9yaLq6uBgxHx75IukXQLsCkiXgJ+AGxxI19biq+2J7jMJrmn6lesio8A/1r5Dj22VExOP3AHcEvFje/364Ved89KuiMiDgB/aktdDdxmJf28/7/AyZQrgF/3hLpK0pcj4ihwyKq9LTFvFljwCltRn0XR/bbk9bameRZaT1ld1+16u4EDfm8l8LJz0WErPgR83iQ/5HMdAW62Jb4GbLP1jknaAuxxs8AC4OsWWweAK6uTMQmeGrFLHPas9k2+3+9vkXSPCX+Nopdqb0QccF33qK2sx7HtWpP6hpX2aatv3KC300mRh6y0u4F1EfGCpM/a+kvP0FVZ92ueTOHzpQVPg9weihLgKPCdiBiWtAO422JnF/B3EfGWx3dL2kpRbHjEFt0REWe8pr4bEeecqDhWWddHJf038CVga0Q8LekV4FZJuylqxb32AruB33DGbCVwKCIGJV1TLg/t2Cgwr82ILW/QUooWnMedXvwLx6B/HxF7PbZX0rUWVT223MfcftPnhAcUTzG87tdrgR/bxYfPNyrpCeAmSc8A/wbc42M+ZpX9mYh4RNI/OfR6ISJedzFiJfCTtOBpCCqvkT3OHu13guI7EfFepaf5pC1nL/B2RJyqHGq5VTEUFadv+HUXcJ1bZw+WRHs9fgfY7k7LRyl6uY5TFB2ut6V+G3gWmO/JtQHYXZ471+CpEz0q6WngVx3b/hlwjaTHnWYcBR6MiDMtPEAv8Kpd65AVcw34F4dQ2yjqxP0lMZKeAu6QNGiSB60BRoA3vRbf631OeYI9EhHHSHxgl/1pSXe7vab6/q1Wss0eB61Jul3SBRMct0vSF6rHKBW7H2HZ1mK/2/2YS+dsuYfR5gSHM1OXe009x/kW2Ged2Gi23yaKTsqRitqV9y23skd6rJpMccvODc6MlZms+d72RkR/E4+RBP+cRC+zmOk2uQfdtdFq/DyHV0v9HRsTOqcoGgQmOsZKJzk6gLNW4oOzzQvGLCD3fVZii5vo2iftp5rsGBFRb7JP7YOcKwluTkC304qL7C7n25rKa9Y0v5dsicNOVCywyGxFdN3JjbOcL2hUx435WMeA4xM9dJ4Ev9+yFlHUc1eb3BHfzHqT644pfL/yuaVeH7MMsc41jIuGCdTl7Ncxh0u1ylo+bpLHKB55actfCGjHMGmxSbiMoqNiL3Cimcuc5sS5kKIE2A/8NCKGpqLiHes+GhGHm3y+wTF326LdMlk9FlPrKH43Y1+DZU8XNT9MdjnwZeA/I+LVKR4vKEqGRyPisNdfNdy7tRSlx9EkeHJyO2y9lzozta+8qVURM1VBY3E27t/euIvi0ZaBUrS1Oo6kmp93uszh2X3Vc5f7Ox06z65+JAmeHN1ed7uAft/I+nSJbSBjBUUN90GT2wWM23pVDHufOCrPcwNFK09/C1F3uckdiojxJHhyYdVDkWM+Uj7CWQ2THJduszAaaXLDowlRSyhKhn1+cgEr8W6KXqwXgCcrVlueazFFDnu3q1CNny+zEDxolZ1r8CTossLtAZ5rMWazr/dtr3n1BnKbEXzEarcaDpWeQhT15Kp1lpa92aHRnhbWu86ZsEHa/HHTdiF4ga33VNlz3LDe9XrMyybtTCVcURNio8n/Mmm9tux9/sGW/0uk2Eo77Cn2RcQ7DZ/L8fkqigLEmXZPVc44wU4rLqJIK/a3yF5dTlEVOg4MftCQSVLdLnohRX35feLKYVEf8HDVqivXdKm9x4l2d89lAqAd3PMFdqWHqoKq8hRhH0VB/3S5Fjb+it0Ea3uzc41RtL1WxVv5dztFbfiV0qqrHsUEv9vu4qotCHYYtNCx7+FqZafhKcLwejdW3uzqViXU5cJao/K2p1jc6lwVIXcl8LQ/rzVcyyrrhBPtHPu2k4vutGvupmiKo0lYtKHiCnua1GJL8dTh79NJ8bNKZ8oJ4c/nWzn3UrTNNh5DFH1gdYqujWbi6goTOw4s8KRptgbXvY3OtJXPNMHdtqj3/DOE0SCuLqbowPhZhWjx/3PSZTmw01tZVJhnhVuvhEYXAa+5Wa56rrq7P7ZS/Nzh8SbXsoyiw+OoNcHZBiXfKPSGKRr83m1Vt57TBNv99VhgvTTB0Jcp6rfjnC/cV61OFVKHnDrcYXLLCTHu+Pk5iv7oqogrj7OR4odbvtnwfoleK+cTlTCt3iJJUlrtChM9+nG04JpDn3HcIFcVV/47UIqhaUyc7cDJiNg1xQRLKZ5usqfY3yiu/PcARZP7VK9jk+9vnRm+yTNmxJWt3kwNV0RTTLDVHLsi6TqKKtQTrfZrVNgm8EaKnuo9dte1Vl5nsmvxuC1W/sdmOhEykxZct/sScIn7jFsV6pvC5JTPLu2gqO58a7L9qpbp9ter7X77K3nqZvvUJ/IGnhybvdbvpWgE+HgSbOEy5Nh3g6RxisL5tDJD7p7c4WPeN8V9ymzUeqv4AX7Onit/nyspGvFfpSgznp7pMGlGOzpsLUvtzvoc1pxtcW3RIswqK1D7OZ9znmhZqLbfDFJUjHr8Xo3zzx1P596UQq7bk6WxEf/jSbBJ7vANXmKye3yjJ7u28ldmz/kGL5xgn1pF3Y5R5LKHvESMOUZeakXfMQmRrd4b8WQZnEq3yMeG4Aai502R3KpIm4q1q4mwGy+TEBZH0zl3s2upA/V2bb5LJBKJRCKRSCQSiUQikUgkEolEIpFIJBKJRCKRSCQSiUQikUgkEolEIpH46PG/cb5+t56E28MAAAAASUVORK5CYII=" alt="CJL">
+      <div>
+        <div class="header-title" id="title">LOADING...</div>
+        <div class="header-sub">Collegiate Jiu-Jitsu League</div>
+      </div>
+    </div>
+  </div>
+  <div class="bracket-container" id="bracket"></div>
+</div>
+<script>
+
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwp2W4G2mYd5cC2e9xBgJ3S_q_3jypZiCpaxI0iF5_1f5XbdLKQQyO65OGZbBScXlddcw/exec';
+
+const RELAY_URL = 'wss://cjl-relay.onrender.com';
+let bracketWs = null;
+let bracketWsConnected = false;
+let sheetPollInterval = null;
+
+function connectBracketWS() {
+  try {
+    bracketWs = new WebSocket(RELAY_URL);
+    bracketWs.onopen = function() {
+      bracketWsConnected = true;
+      bracketWs.send(JSON.stringify({ type: 'join', channel: 'bracket' }));
+      // Relay connected — stop Sheets polling, relay pushes updates instead
+      if (sheetPollInterval) { clearInterval(sheetPollInterval); sheetPollInterval = null; }
+    };
+    bracketWs.onmessage = function(e) {
+      try {
+        var d = JSON.parse(e.data);
+        if (d.type === 'bracket' && d.data) {
+          allBouts = d.data;
+          renderBracket();
+        }
+      } catch(err) {}
+    };
+    bracketWs.onclose = function() {
+      bracketWsConnected = false;
+      if (!sheetPollInterval) sheetPollInterval = setInterval(loadBracket, 10000);
+      setTimeout(connectBracketWS, 3000);
+    };
+    bracketWs.onerror = function() {
+      bracketWsConnected = false;
+      if (!sheetPollInterval) sheetPollInterval = setInterval(loadBracket, 10000);
+      setTimeout(connectBracketWS, 3000);
+    };
+  } catch(e) {
+    bracketWsConnected = false;
+    if (!sheetPollInterval) sheetPollInterval = setInterval(loadBracket, 10000);
+    setTimeout(connectBracketWS, 3000);
+  }
+}
+
+// Keepalive ping every 25 seconds
+setInterval(function() {
+  if (bracketWs && bracketWs.readyState === 1) {
+    bracketWs.send(JSON.stringify({ type: 'ping' }));
+  }
+}, 25000);
+
+const ROUNDS = [];
+const TITLE = 'SUPERMATCHES';
+const PLACE_LABEL = '';
+const IS_CHAMP = false;
+const IS_SUPER = true;
+
+let allBouts = [];
+
+async function loadBracket() {
+  try {
+    const res = await fetch(SHEET_URL + '?action=getBracket', {redirect:'follow'});
+    allBouts = JSON.parse(await res.text());
+    renderBracket();
+  } catch(e) {
+    document.getElementById('bracket').innerHTML = '<div style="color:#e24b4a;font-size:18px;margin:auto;">Connection error — retrying...</div>';
+  }
+}
+
+function renderBracket() {
+  document.getElementById('title').textContent = TITLE;
+  const container = document.getElementById('bracket');
+  container.innerHTML = '';
+
+  if (IS_SUPER) {
+    renderSupermatches(container);
+    return;
+  }
+
+  container.style.display = 'flex';
+  container.style.alignItems = 'stretch';
+
+  ROUNDS.forEach((round, ri) => {
+    if (ri > 0) {
+      const conn = document.createElement('div');
+      conn.className = 'conn';
+      conn.style.minWidth = '50px';
+      container.appendChild(conn);
+    }
+    const col = document.createElement('div');
+    col.className = 'round';
+    col.style.flex = '1';
+    const label = document.createElement('div');
+    label.className = 'round-label';
+    label.textContent = round.label;
+    col.appendChild(label);
+    round.bouts.forEach(boutName => {
+      const bout = allBouts.find(b => b.bout === boutName);
+      col.appendChild(makeBoutCard(bout, boutName));
+    });
+    container.appendChild(col);
+  });
+
+  // Final placement box
+  const finalRound = ROUNDS[ROUNDS.length - 1];
+  const finalBout = allBouts.find(b => b.bout === finalRound.bouts[0]);
+  if (finalBout && finalBout.winner) {
+    const conn = document.createElement('div');
+    conn.className = 'conn';
+    conn.style.minWidth = '50px';
+    container.appendChild(conn);
+    const placeCol = document.createElement('div');
+    placeCol.className = 'round';
+    placeCol.style.flex = '0.6';
+    placeCol.style.justifyContent = 'center';
+    if (IS_CHAMP) {
+      placeCol.innerHTML = `<div class="champion-box"><div class="champion-trophy">🏆</div><div class="champion-label">Champion</div><div class="champion-name">${finalBout.winner}</div></div>`;
+    } else {
+      placeCol.innerHTML = `<div class="place-box"><div class="place-label">${PLACE_LABEL}</div><div class="place-name">${finalBout.winner} wins</div></div>`;
+    }
+    container.appendChild(placeCol);
+  }
+}
+
+function renderSupermatches(container) {
+  container.className = 'super-grid';
+  ['Super 1','Super 2','Super 3'].forEach(boutName => {
+    const bout = allBouts.find(b => b.bout === boutName);
+    container.appendChild(makeSuperCard(bout, boutName));
+  });
+}
+
+function makeSuperCard(bout, boutName) {
+  const card = document.createElement('div');
+  card.className = 'super-card' + (bout && bout.status==='Complete' ? ' complete' : '');
+  const t1 = bout ? bout.team1 : 'TBD';
+  const t2 = bout ? bout.team2 : 'TBD';
+  const s1 = bout && bout.team1Score ? bout.team1Score : '';
+  const s2 = bout && bout.team2Score ? bout.team2Score : '';
+  const w  = bout ? bout.winner : '';
+  const tbd1 = !t1 || t1==='TBD' || t1.startsWith('W-') || t1.startsWith('L-');
+  const tbd2 = !t2 || t2==='TBD' || t2.startsWith('W-') || t2.startsWith('L-');
+  card.innerHTML = `
+    <div class="super-title">${boutName}</div>
+    <div class="super-team${w===t1?' winner':''}">
+      <span class="super-team-name${w===t1?' winner':''}${tbd1?' tbd':''}">${t1||'TBD'}</span>
+      <span class="super-team-score">${s1}</span>
+    </div>
+    <div class="super-team${w===t2?' winner':''}">
+      <span class="super-team-name${w===t2?' winner':''}${tbd2?' tbd':''}">${t2||'TBD'}</span>
+      <span class="super-team-score">${s2}</span>
+    </div>
+    ${bout && bout.status==='Complete' ? `<div class="super-result">✓ ${w} wins</div>` : ''}
+  `;
+  return card;
+}
+
+function makeBoutCard(bout, boutName) {
+  const card = document.createElement('div');
+  card.className = 'bout' + (bout && bout.status==='Complete' ? ' complete' : '');
+  const t1 = bout ? bout.team1 : 'TBD';
+  const t2 = bout ? bout.team2 : 'TBD';
+  const s1 = bout && bout.team1Score ? bout.team1Score : '';
+  const s2 = bout && bout.team2Score ? bout.team2Score : '';
+  const w  = bout ? bout.winner : '';
+  const tbd1 = !t1 || t1==='TBD' || t1.startsWith('W-') || t1.startsWith('L-');
+  const tbd2 = !t2 || t2==='TBD' || t2.startsWith('W-') || t2.startsWith('L-');
+  card.innerHTML = `
+    <div class="bout-header">${boutName}</div>
+    <div class="bout-team${w===t1?' winner':''}">
+      <span class="bout-team-name${w===t1?' winner':''}${tbd1?' tbd':''}">${t1||'TBD'}</span>
+      <span class="bout-team-score">${s1}</span>
+    </div>
+    <div class="bout-team${w===t2?' winner':''}">
+      <span class="bout-team-name${w===t2?' winner':''}${tbd2?' tbd':''}">${t2||'TBD'}</span>
+      <span class="bout-team-score">${s2}</span>
+    </div>
+    ${bout && bout.status==='Complete' ? `<div class="result-tag">✓ ${w} wins</div>` : ''}
+  `;
+  return card;
+}
+
+loadBracket();
+connectBracketWS();
+
+</script>
+</body>
+</html>

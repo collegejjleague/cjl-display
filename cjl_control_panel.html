@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CJL Control Panel</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--text:#ffffff;--text-dim:#8890aa;--red:#c0392b;--blue:#1a5fa8;--green:#27ae60;--orange:#e67e22;--yellow:#f1c40f;--accent:#3d5af1;}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;padding:12px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.topbar-logo{height:36px;opacity:0.9;}
+.topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;letter-spacing:2px;}
+.mat-selector{display:flex;gap:6px;align-items:center;}
+.mat-btn{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all 0.2s;}
+.mat-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.status-area{display:flex;align-items:center;gap:8px;}
+.status-dot{width:10px;height:10px;border-radius:50%;background:#888;display:inline-block;}
+.status-dot.connected{background:var(--green);}
+.status-dot.error{background:var(--red);}
+.status-text{font-size:12px;color:var(--text-dim);}
+.mode-tabs{display:flex;gap:6px;}
+.mode-tab{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all 0.2s;}
+.mode-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.grid-full{grid-column:1/-1;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px;}
+select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:'Barlow',sans-serif;width:100%;}
+select:focus{outline:none;border-color:var(--accent);}
+.lineup-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;}
+.lineup-match{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px;}
+.lineup-match-label{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.lineup-selects{display:flex;flex-direction:column;gap:4px;}
+.lineup-selects select{padding:5px 8px;font-size:12px;}
+.confirm-lineup-btn{margin-top:8px;width:100%;padding:10px;background:var(--green);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;}
+.timer-display{text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:64px;font-weight:900;letter-spacing:4px;color:#fff;margin:8px 0;transition:color 0.3s;}
+.timer-display.danger{color:var(--red);}
+.timer-controls{display:flex;gap:8px;justify-content:center;}
+.match-progress{display:flex;gap:6px;margin-bottom:10px;}
+.match-pip{flex:1;height:8px;border-radius:4px;background:var(--surface2);border:1px solid var(--border);transition:background 0.3s;}
+.match-pip.current{background:var(--accent);}
+.match-pip.done-red{background:var(--red);}
+.match-pip.done-blue{background:var(--blue);}
+.btn{padding:8px 16px;border:none;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s,transform 0.1s;}
+.btn:hover{opacity:0.85;}.btn:active{transform:scale(0.97);}
+.btn-green{background:var(--green);color:#fff;}.btn-red{background:var(--red);color:#fff;}
+.btn-orange{background:var(--orange);color:#fff;}.btn-grey{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-accent{background:var(--accent);color:#fff;}.btn-lg{padding:12px 24px;font-size:18px;}
+.btn-sm{padding:5px 10px;font-size:12px;}.btn-full{width:100%;}
+.match-display{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:10px;}
+.athlete-info{display:flex;flex-direction:column;gap:2px;}
+.athlete-info.right{align-items:flex-end;text-align:right;}
+.athlete-display-name{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:1px;}
+.athlete-school{font-size:11px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;}
+.score-display{display:flex;gap:8px;align-items:center;justify-content:center;}
+.score-box{width:52px;height:52px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;color:#fff;}
+.score-box.red{background:var(--red);}.score-box.blue{background:var(--blue);}
+.points-section{margin-bottom:10px;}
+.points-label{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.points-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
+.point-btn{padding:8px 4px;border:none;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;cursor:pointer;text-align:center;line-height:1.2;transition:opacity 0.2s,transform 0.1s;}
+.point-btn:hover{opacity:0.85;}.point-btn:active{transform:scale(0.96);}
+.point-btn .pts{font-size:16px;display:block;}
+.point-btn.red-btn{background:#7b2020;color:#ff9999;}.point-btn.blue-btn{background:#1a3a6b;color:#99ccff;}
+.sp-row{display:flex;gap:6px;align-items:center;margin-bottom:6px;}
+.sp-label{font-size:11px;color:var(--text-dim);min-width:60px;text-transform:uppercase;letter-spacing:1px;}
+.dot-row{display:flex;gap:4px;}
+.stall-dot{width:14px;height:14px;border-radius:50%;border:2px solid #444;cursor:pointer;transition:all 0.2s;}
+.stall-dot.active{background:var(--orange);border-color:var(--orange);}.stall-dot.dq{background:var(--red);border-color:var(--red);}
+.team-score-row{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:8px;}
+.team-score-card{border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;}
+.team-score-name{font-size:14px;font-weight:600;color:#ddd;text-transform:uppercase;}
+.team-score-pts{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;}
+.team-score-pts.red{color:#ff6b6b;}.team-score-pts.blue{color:#6bb5ff;}
+.vs-text{font-size:16px;color:var(--text-dim);text-align:center;font-weight:700;}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;}
+.result-btn{padding:8px 4px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text);font-size:11px;font-weight:700;cursor:pointer;text-align:center;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;text-transform:uppercase;transition:all 0.2s;}
+.result-btn:hover{border-color:var(--accent);color:var(--accent);}.result-btn.selected{background:var(--accent);color:#fff;border-color:var(--accent);}
+.undo-log{max-height:120px;overflow-y:auto;font-size:11px;color:var(--text-dim);font-family:monospace;}
+.undo-entry{padding:3px 0;border-bottom:1px solid var(--border);}
+.confirm-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:1000;align-items:center;justify-content:center;}
+.confirm-overlay.show{display:flex;}
+.confirm-box{background:var(--surface);border:2px solid var(--accent);border-radius:12px;padding:28px;max-width:420px;width:90%;text-align:center;}
+.confirm-box h2{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;margin-bottom:8px;}
+.confirm-box p{font-size:14px;color:var(--text-dim);margin-bottom:20px;}
+.confirm-box .result-summary{background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:20px;font-size:13px;line-height:1.8;}
+.confirm-actions{display:flex;gap:10px;justify-content:center;}
+.divider{height:1px;background:var(--border);margin:10px 0;}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.tag-green{background:#1a3a2a;color:#4caf50;}
+kbd{background:var(--surface2);padding:1px 5px;border-radius:3px;color:#fff;font-family:monospace;font-size:11px;}
+</style>
+</head>
+<body>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h2>⚡ Submit Result?</h2>
+    <p>Review the dual meet result before advancing the bracket.</p>
+    <div class="result-summary" id="confirmSummary"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-grey" onclick="closeConfirm()">← Go Back</button>
+      <button class="btn btn-green btn-lg" onclick="confirmAdvance()">✓ Confirm & Advance Bracket</button>
+    </div>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <img class="topbar-logo" src="data:image/png;base64,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" alt="CJL">
+    <div class="topbar-title">CJL CONTROL PANEL</div>
+  </div>
+  <div class="mat-selector">
+    <span style="font-size:11px;color:var(--text-dim);margin-right:4px;">MAT:</span>
+    <button class="mat-btn active" onclick="setMat(1)" id="mat-btn-1">1</button>
+    <button class="mat-btn" onclick="setMat(2)" id="mat-btn-2">2</button>
+    <button class="mat-btn" onclick="setMat(3)" id="mat-btn-3">3</button>
+    <button class="mat-btn" onclick="setMat(4)" id="mat-btn-4">4</button>
+  </div>
+  <div class="status-area">
+    <span class="status-dot" id="statusDot"></span>
+    <span class="status-text" id="statusText">Connecting...</span>
+    <span class="status-dot" id="relayDot" style="margin-left:10px;"></span>
+    <span class="status-text" id="relayText">Relay: connecting...</span>
+  </div>
+  <div class="mode-tabs">
+    <div class="mode-tab active" onclick="setMode('mens')" id="tab-mens">Men's</div>
+    <div class="mode-tab" onclick="setMode('womens')" id="tab-womens">Women's</div>
+    <div class="mode-tab" onclick="setMode('supermatch')" id="tab-supermatch">Supermatch</div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card grid-full">
+    <div class="card-title">📋 Bout Selection & Lineup</div>
+    <select id="boutSelect" onchange="onBoutChange()"><option value="">— Select Bout —</option></select>
+    <div class="lineup-grid" id="lineupGrid" style="display:none;"></div>
+    <button class="confirm-lineup-btn" id="confirmLineupBtn" style="display:none;" onclick="confirmLineup()">✓ Confirm Lineup & Start Bout</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">⏱ Match Timer</div>
+    <div class="timer-display" id="timerDisplay">5:00</div>
+    <div class="timer-controls">
+      <button class="btn btn-green btn-lg" id="startStopBtn" onclick="toggleTimer()">▶ Start</button>
+      <button class="btn btn-grey" onclick="resetTimer()">↺ Reset</button>
+      <button class="btn btn-grey btn-sm" onclick="adjustTimer(5)">+5s</button>
+      <button class="btn btn-grey btn-sm" onclick="adjustTimer(10)">+10s</button>
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <span style="font-size:12px;color:var(--text-dim);">Match</span>
+      <div class="match-progress" id="matchProgress" style="flex:1;"></div>
+      <button class="btn btn-accent btn-sm" onclick="nextMatch()">Next Match →</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🥋 Current Match</div>
+    <div class="match-display">
+      <div class="athlete-info">
+        <div class="athlete-display-name" id="dispName1">—</div>
+        <div class="athlete-school" id="dispSchool1">—</div>
+      </div>
+      <div class="score-display">
+        <div class="score-box red" id="scoreBox1">0</div>
+        <div style="color:var(--text-dim);font-size:12px;">vs</div>
+        <div class="score-box blue" id="scoreBox2">0</div>
+      </div>
+      <div class="athlete-info right">
+        <div class="athlete-display-name" id="dispName2">—</div>
+        <div class="athlete-school" id="dispSchool2">—</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div>
+        <div class="sp-row"><span class="sp-label">Stalling</span><div class="dot-row" id="stallDots1"><div class="stall-dot" onclick="addStalling(1)"></div><div class="stall-dot" onclick="addStalling(1)"></div><div class="stall-dot" onclick="addStalling(1)"></div><div class="stall-dot" onclick="addStalling(1)"></div></div></div>
+        <div class="sp-row"><span class="sp-label">Penalty</span><div style="display:flex;flex-direction:column;gap:4px;"><div class="dot-row" id="penDots1"><div class="stall-dot" onclick="addPenaltyStrike(1,false)"></div><div class="stall-dot" onclick="addPenaltyStrike(1,false)"></div><div class="stall-dot" onclick="addPenaltyStrike(1,false)"></div><div class="stall-dot" onclick="addPenaltyStrike(1,false)"></div></div><button class="btn btn-red btn-sm" onclick="addPenaltyStrike(1,false)">+Penalty</button></div></div>
+      </div>
+      <div>
+        <div class="sp-row" style="justify-content:flex-end;"><div class="dot-row" id="stallDots2"><div class="stall-dot" onclick="addStalling(2)"></div><div class="stall-dot" onclick="addStalling(2)"></div><div class="stall-dot" onclick="addStalling(2)"></div><div class="stall-dot" onclick="addStalling(2)"></div></div><span class="sp-label" style="text-align:right;">Stalling</span></div>
+        <div class="sp-row" style="justify-content:flex-end;"><div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;"><div class="dot-row" id="penDots2"><div class="stall-dot" onclick="addPenaltyStrike(2,false)"></div><div class="stall-dot" onclick="addPenaltyStrike(2,false)"></div><div class="stall-dot" onclick="addPenaltyStrike(2,false)"></div><div class="stall-dot" onclick="addPenaltyStrike(2,false)"></div></div><button class="btn btn-red btn-sm" onclick="addPenaltyStrike(2,false)">+Penalty</button></div><span class="sp-label" style="text-align:right;">Penalty</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔢 Scoring</div>
+    <div class="points-section">
+      <div class="points-label" style="color:#ff9999;">Athlete 1 (Red)</div>
+      <div class="points-grid">
+        <button class="point-btn red-btn" onclick="addPoints(1,2,'Takedown')"><span class="pts">+2</span>Takedown</button>
+        <button class="point-btn red-btn" onclick="addPoints(1,2,'Sweep')"><span class="pts">+2</span>Sweep</button>
+        <button class="point-btn red-btn" onclick="addPoints(1,3,'Guard Pass')"><span class="pts">+3</span>Guard Pass</button>
+        <button class="point-btn red-btn" onclick="addPoints(1,2,'Knee/Belly')"><span class="pts">+2</span>Knee/Belly</button>
+        <button class="point-btn red-btn" onclick="addPoints(1,4,'Full Mount')"><span class="pts">+4</span>Full Mount</button>
+        <button class="point-btn red-btn" onclick="addPoints(1,4,'Back Mount')"><span class="pts">+4</span>Back Mount</button>
+        <button class="point-btn red-btn" onclick="addPoints(1,1,'Pull Guard')"><span class="pts">+1</span>Pull Guard</button>
+        <button class="point-btn red-btn" onclick="addPoints(1,1,'OOB')"><span class="pts">+1</span>OOB</button>
+        <button class="point-btn red-btn" onclick="addOOBEvasion(1)" style="background:#5a1a1a;color:#ffb3b3;"><span class="pts">+2</span>OOB Evasion (Blue evaded)</button>
+        <button class="point-btn red-btn" onclick="addPenaltyStrike(1,true)" style="grid-column:span 2;background:#5a1a5a;color:#ffaaff;"><span class="pts">+1</span>Penalty +Pt (Blue fouled → Red +1)</button>
+        <button class="point-btn red-btn" onclick="addStalling(1)" style="grid-column:span 2;background:#5a4a1a;color:#ffe599;"><span class="pts">⚠</span>Add Stalling (Red)</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="points-section">
+      <div class="points-label" style="color:#99ccff;">Athlete 2 (Blue)</div>
+      <div class="points-grid">
+        <button class="point-btn blue-btn" onclick="addPoints(2,2,'Takedown')"><span class="pts">+2</span>Takedown</button>
+        <button class="point-btn blue-btn" onclick="addPoints(2,2,'Sweep')"><span class="pts">+2</span>Sweep</button>
+        <button class="point-btn blue-btn" onclick="addPoints(2,3,'Guard Pass')"><span class="pts">+3</span>Guard Pass</button>
+        <button class="point-btn blue-btn" onclick="addPoints(2,2,'Knee/Belly')"><span class="pts">+2</span>Knee/Belly</button>
+        <button class="point-btn blue-btn" onclick="addPoints(2,4,'Full Mount')"><span class="pts">+4</span>Full Mount</button>
+        <button class="point-btn blue-btn" onclick="addPoints(2,4,'Back Mount')"><span class="pts">+4</span>Back Mount</button>
+        <button class="point-btn blue-btn" onclick="addPoints(2,1,'Pull Guard')"><span class="pts">+1</span>Pull Guard</button>
+        <button class="point-btn blue-btn" onclick="addPoints(2,1,'OOB')"><span class="pts">+1</span>OOB</button>
+        <button class="point-btn blue-btn" onclick="addOOBEvasion(2)" style="background:#5a1a1a;color:#ffb3b3;"><span class="pts">+2</span>OOB Evasion (Red evaded)</button>
+        <button class="point-btn blue-btn" onclick="addPenaltyStrike(2,true)" style="grid-column:span 2;background:#5a1a5a;color:#ffaaff;"><span class="pts">+1</span>Penalty +Pt (Red fouled → Blue +1)</button>
+        <button class="point-btn blue-btn" onclick="addStalling(2)" style="grid-column:span 2;background:#5a4a1a;color:#ffe599;"><span class="pts">⚠</span>Add Stalling (Blue)</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="btn btn-orange btn-sm" onclick="undo()">↩ Undo Last</button>
+      <span style="font-size:11px;color:var(--text-dim);" id="lastAction">—</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🏆 Dual Meet Score</div>
+    <div class="team-score-row">
+      <div class="team-score-card" id="teamCard1" style="background:rgba(192,57,43,0.15);border:1px solid rgba(192,57,43,0.4);">
+        <span class="team-score-name" id="teamScoreName1">Team 1</span>
+        <span class="team-score-pts red" id="teamScorePts1">0</span>
+      </div>
+      <div class="vs-text">vs</div>
+      <div class="team-score-card" id="teamCard2" style="background:rgba(26,95,168,0.15);border:1px solid rgba(26,95,168,0.4);">
+        <span class="team-score-pts blue" id="teamScorePts2">0</span>
+        <span class="team-score-name" id="teamScoreName2">Team 2</span>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="font-size:11px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;">Match Results This Bout</div>
+      <button class="btn btn-orange btn-sm" onclick="undoLastMatch()" id="undoMatchBtn" style="display:none;">↩ Undo Last Match</button>
+    </div>
+    <div id="matchResultsLog" style="font-size:12px;margin-bottom:10px;min-height:60px;"><span style="color:var(--text-dim);">No matches completed yet</span></div>
+    <div class="divider"></div>
+    <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;">End Current Match — Select Result</div>
+    <div class="result-grid">
+      <button class="result-btn" onclick="selectResult('submission',1)" id="res-sub1">🔴 Sub Win (Red)</button>
+      <button class="result-btn" onclick="selectResult('submission',2)" id="res-sub2">🔵 Sub Win (Blue)</button>
+      <button class="result-btn" onclick="selectResult('tech',1)" id="res-tech1">🔴 Tech (Red)</button>
+      <button class="result-btn" onclick="selectResult('tech',2)" id="res-tech2">🔵 Tech (Blue)</button>
+      <button class="result-btn" onclick="selectResult('decision',1)" id="res-dec1">🔴 Decision (Red)</button>
+      <button class="result-btn" onclick="selectResult('decision',2)" id="res-dec2">🔵 Decision (Blue)</button>
+      <button class="result-btn" onclick="selectResult('referee',1)" id="res-ref1">🔴 Ref Dec (Red)</button>
+      <button class="result-btn" onclick="selectResult('referee',2)" id="res-ref2">🔵 Ref Dec (Blue)</button>
+      <button class="result-btn" onclick="selectResult('dq',1)" id="res-dq1">🔴 DQ Win (Red)</button>
+      <button class="result-btn" onclick="selectResult('dq',2)" id="res-dq2">🔵 DQ Win (Blue)</button>
+      <button class="result-btn" onclick="selectResult('forfeit',1)" id="res-for1">🔴 Forfeit (Red)</button>
+      <button class="result-btn" onclick="selectResult('forfeit',2)" id="res-for2">🔵 Forfeit (Blue)</button>
+      <button class="result-btn" onclick="selectResult('stoppage',1)" id="res-stp1">🔴 Stoppage (Red)</button>
+      <button class="result-btn" onclick="selectResult('stoppage',2)" id="res-stp2">🔵 Stoppage (Blue)</button>
+    </div>
+    <div class="divider"></div>
+    <button class="btn btn-accent btn-full btn-lg" onclick="submitBoutResult()">📤 Submit Bout Result → Option C Review</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">↩ Action Log</div>
+    <div class="undo-log" id="undoLog"><span style="color:var(--text-dim);">No actions yet</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">⌨️ Keyboard Shortcuts</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 12px;font-size:11px;font-family:monospace;line-height:2;">
+      <div style="color:#ff9999;font-weight:bold;">🔴 ATHLETE 1</div><div style="color:#99ccff;font-weight:bold;">🔵 ATHLETE 2</div>
+      <div><kbd>1</kbd> +1</div><div><kbd>6</kbd> +1</div>
+      <div><kbd>2</kbd> +2</div><div><kbd>7</kbd> +2</div>
+      <div><kbd>3</kbd> +3</div><div><kbd>8</kbd> +3</div>
+      <div><kbd>4</kbd> +4</div><div><kbd>9</kbd> +4</div>
+      <div><kbd>F</kbd> Stalling</div><div><kbd>H</kbd> Stalling</div>
+      <div><kbd>G</kbd> Penalty</div><div><kbd>N</kbd> Penalty</div>
+      <div style="color:#fff;font-weight:bold;margin-top:4px;grid-column:1/-1;font-size:10px;text-transform:uppercase;letter-spacing:1px;">Timer & Match</div>
+      <div><kbd>Space</kbd> Start/Stop</div><div><kbd>R</kbd> Reset</div>
+      <div><kbd>Enter</kbd> Next Match</div><div><kbd>0</kbd> Reset Scores</div>
+      <div><kbd>⌫</kbd> Undo</div><div><kbd>P</kbd> Submit</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SHEET_URL='https://script.google.com/macros/s/AKfycbwp2W4G2mYd5cC2e9xBgJ3S_q_3jypZiCpaxI0iF5_1f5XbdLKQQyO65OGZbBScXlddcw/exec';
+let matId=1;
+let state={mode:'mens',boutNum:'',matchNum:1,pts1:0,pts2:0,teamPts1:0,teamPts2:0,stalling1:0,stalling2:0,penalties1:0,penalties2:0,timerSeconds:300,timerRunning:false,name1:'—',school1:'—',color1:'#AA0000',name2:'—',school2:'—',color2:'#00356B'};
+let timerInterval=null,undoStack=[],actionLog=[],matchResults=[],selectedResult=null,selectedWinner=null,boutData=[],teams=[],rosters={},pendingAdvance=null,savedLineup=[];
+const TP={submission:5,dq:5,forfeit:5,tech:4,stoppage:5,decision:3,referee:2};
+
+function setMat(id){matId=id;[1,2,3,4].forEach(i=>document.getElementById('mat-btn-'+i).classList.toggle('active',i===id));resetMatchScores();matchResults=[];selectedResult=null;selectedWinner=null;savedLineup=[];state.boutNum='';state.name1='—';state.name2='—';state.school1='—';state.school2='—';document.getElementById('boutSelect').value='';document.getElementById('lineupGrid').style.display='none';document.getElementById('confirmLineupBtn').style.display='none';updateMatchResultsLog();buildMatchProgress();renderAll();pushLS();logAction('Switched to Mat '+id);}
+async function sheetGet(action,params={}){let url=SHEET_URL+'?action='+encodeURIComponent(action);Object.entries(params).forEach(([k,v])=>{url+='&'+encodeURIComponent(k)+'='+encodeURIComponent(v);});const res=await fetch(url,{redirect:'follow'});const text=await res.text();try{return JSON.parse(text);}catch(e){return[];}}
+async function sheetPost(data){try{await fetch(SHEET_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)});}catch(e){}}
+function pushLS(){localStorage.setItem('cjl_mat_'+matId,JSON.stringify({matId,...state,timerRunning:state.timerRunning?'true':'false',lastUpdated:Date.now()}));}
+async function init(){setStatus('connecting');try{await Promise.all([loadBracket(),loadTeams()]);setStatus('connected');populateBoutSelect();buildMatchProgress();renderAll();setInterval(syncToSheet,2000);}catch(e){setStatus('error');setTimeout(init,5000);}}
+async function loadBracket(){boutData=await sheetGet('getBracket');}
+async function loadTeams(){teams=await sheetGet('getTeams');}
+async function loadRoster(team,division){const key=team+'|'+division;if(!rosters[key])rosters[key]=await sheetGet('getRosters',{team,division});return rosters[key]||[];}
+async function syncToSheet(){broadcastState();await syncToSheetRaw();}
+async function syncToSheetRaw(){try{await sheetPost({action:'updateMatch',matId,updates:{name1:state.name1,school1:state.school1,color1:state.color1,name2:state.name2,school2:state.school2,color2:state.color2,pts1:state.pts1,pts2:state.pts2,teamPts1:state.teamPts1,teamPts2:state.teamPts2,stalling1:state.stalling1,stalling2:state.stalling2,penalties1:state.penalties1,penalties2:state.penalties2,timerSeconds:state.timerSeconds,timerRunning:state.timerRunning?'true':'false',mode:state.mode,matchNum:state.matchNum,boutNum:state.boutNum,undoStack:JSON.stringify(undoStack.slice(-10))}});pushLS();setStatus('connected');}catch(e){setStatus('error');}}
+function populateBoutSelect(){const sel=document.getElementById('boutSelect');sel.innerHTML='<option value="">— Select Bout —</option>';boutData.forEach(b=>{const iM=!b.bout.startsWith('Bout W')&&!b.bout.startsWith('Super'),iW=b.bout.startsWith('Bout W'),iS=b.bout.startsWith('Super');if((state.mode==='mens'&&iM)||(state.mode==='womens'&&iW)||(state.mode==='supermatch'&&iS)){const o=document.createElement('option');o.value=b.bout;o.textContent=b.bout+' — '+b.team1+' vs '+b.team2;sel.appendChild(o);}}); }
+async function onBoutChange(){const bn=document.getElementById('boutSelect').value;if(!bn)return;const b=boutData.find(x=>x.bout===bn);if(!b)return;state.boutNum=bn;state.school1=b.team1;state.school2=b.team2;const t1=teams.find(t=>t.name===b.team1),t2=teams.find(t=>t.name===b.team2);if(t1)state.color1=t1.color;if(t2)state.color2=t2.color;await buildLineupGrid(b.team1,b.team2);renderAll();}
+async function buildLineupGrid(t1,t2){const div=state.mode==='womens'?"Women's 3-on-3":state.mode==='supermatch'?'Supermatch':"Men's Quintet";const tm=state.mode==='womens'?3:state.mode==='supermatch'?1:5;const[r1,r2]=await Promise.all([loadRoster(t1,div),loadRoster(t2,div)]);const g=document.getElementById('lineupGrid');g.innerHTML='';g.style.display='grid';for(let m=1;m<=tm;m++){const d=document.createElement('div');d.className='lineup-match';d.innerHTML=`<div class="lineup-match-label">Match ${m}</div><div class="lineup-selects"><select id="lineup1_${m}" style="border-left:3px solid ${state.color1};"><option value="">— ${t1} —</option>${r1.map(a=>`<option value="${a.displayName}">${a.displayName} (${a.belt})</option>`).join('')}</select><select id="lineup2_${m}" style="border-left:3px solid ${state.color2};"><option value="">— ${t2} —</option>${r2.map(a=>`<option value="${a.displayName}">${a.displayName} (${a.belt})</option>`).join('')}</select></div>`;g.appendChild(d);}document.getElementById('confirmLineupBtn').style.display='block';}
+async function confirmLineup(){const tm=state.mode==='womens'?3:state.mode==='supermatch'?1:5;const matches=[];for(let m=1;m<=tm;m++)matches.push({matchNum:m,athlete1:document.getElementById('lineup1_'+m)?.value||'',athlete2:document.getElementById('lineup2_'+m)?.value||''});await sheetPost({action:'saveLineup',matId,boutNum:state.boutNum,matches});document.getElementById('lineupGrid').style.display='none';document.getElementById('confirmLineupBtn').style.display='none';state.matchNum=1;savedLineup=matches;if(matches[0]){state.name1=matches[0].athlete1||'—';state.name2=matches[0].athlete2||'—';}resetMatchScores();matchResults=[];buildMatchProgress();renderAll();logAction('Lineup confirmed for '+state.boutNum+' (Mat '+matId+')');}
+function toggleTimer(){state.timerRunning?stopTimer():startTimer();}
+function startTimer(){if(timerInterval)return;state.timerRunning=true;timerInterval=setInterval(()=>{if(state.timerSeconds>0){state.timerSeconds--;renderTimer();pushLS();broadcastState();if(!relayConnected||state.timerSeconds%5===0)syncToSheetRaw();}else stopTimer();},1000);document.getElementById('startStopBtn').textContent='⏸ Stop';document.getElementById('startStopBtn').className='btn btn-red btn-lg';}
+function stopTimer(){clearInterval(timerInterval);timerInterval=null;state.timerRunning=false;document.getElementById('startStopBtn').textContent='▶ Start';document.getElementById('startStopBtn').className='btn btn-green btn-lg';renderTimer();pushLS();}
+function resetTimer(){stopTimer();state.timerSeconds=300;renderTimer();pushLS();logAction('Timer reset');}
+function adjustTimer(s){state.timerSeconds+=s;renderTimer();pushLS();syncToSheet();logAction('Timer +'+s+'s');}
+function addPoints(a,pts,action){const prev=a===1?state.pts1:state.pts2;if(a===1)state.pts1+=pts;else state.pts2+=pts;pushUndo({type:'points',a,pts,action,prev});logAction((a===1?'🔴':'🔵')+' '+action+' +'+pts);renderScores();syncToSheet();}
+function addStalling(a){const prev=a===1?state.stalling1:state.stalling2;if(prev>=4)return;if(a===1)state.stalling1++;else state.stalling2++;const cur=a===1?state.stalling1:state.stalling2;if(cur===2||cur===3){if(a===1)state.pts1=Math.max(0,state.pts1-1);else state.pts2=Math.max(0,state.pts2-1);logAction((a===1?'🔴':'🔵')+' Stalling '+cur+' (-1pt)');}else if(cur===4)logAction((a===1?'🔴':'🔵')+' Stalling 4 — DQ!');else logAction((a===1?'🔴':'🔵')+' Stalling warning '+cur);pushUndo({type:'stalling',a,prev});renderStalling();renderScores();syncToSheet();}
+function addOOBEvasion(a){
+  const opponent = a===1?2:1;
+  const prevPen = opponent===1?state.penalties1:state.penalties2;
+  if (prevPen >= 4) return;
+  if (opponent===1) state.penalties1++; else state.penalties2++;
+  const curPen = opponent===1?state.penalties1:state.penalties2;
+  const prevPts = a===1?state.pts1:state.pts2;
+  if (a===1) state.pts1+=2; else state.pts2+=2;
+  if (curPen===4) logAction((opponent===1?'🔴':'🔵')+' Penalty 4 — DQ! (OOB Evasion)');
+  else logAction((a===1?'🔴':'🔵')+' OOB Evasion +2, '+(opponent===1?'🔴':'🔵')+' penalty strike '+curPen);
+  pushUndo({type:'oobEvasion',a,opponent,prevPen,prevPts});
+  renderScores();renderStalling();syncToSheet();
+}
+function addPenaltyStrike(a,withPoint){const st=withPoint?(a===1?2:1):a;const prev=st===1?state.penalties1:state.penalties2;if(prev>=4)return;if(st===1)state.penalties1++;else state.penalties2++;const cur=st===1?state.penalties1:state.penalties2;let prevPts=null;if(withPoint){prevPts=a===1?state.pts1:state.pts2;if(a===1)state.pts1++;else state.pts2++;}if(cur===4)logAction((st===1?'🔴':'🔵')+' Penalty 4 — DQ!');else if(withPoint)logAction((a===1?'🔴':'🔵')+' Penalty+pt, '+(st===1?'🔴':'🔵')+' strike '+cur);else logAction((st===1?'🔴':'🔵')+' Penalty strike '+cur);pushUndo({type:'pen',a,st,withPoint,prev,prevPts});renderScores();renderStalling();syncToSheet();}
+function pushUndo(action){undoStack.push(action);if(undoStack.length>20)undoStack.shift();}
+function undo(){if(!undoStack.length)return;const ac=undoStack.pop();if(ac.type==='points'){if(ac.a===1)state.pts1=ac.prev;else state.pts2=ac.prev;logAction('↩ Undid: '+ac.action);}else if(ac.type==='stalling'){if(ac.a===1)state.stalling1=ac.prev;else state.stalling2=ac.prev;logAction('↩ Undid: stalling');}else if(ac.type==='oobEvasion'){if(ac.a===1)state.pts1=ac.prevPts;else state.pts2=ac.prevPts;if(ac.opponent===1)state.penalties1=ac.prevPen;else state.penalties2=ac.prevPen;logAction('↩ Undid: OOB Evasion');}else if(ac.type==='pen'){if(ac.st===1)state.penalties1=ac.prev;else state.penalties2=ac.prev;if(ac.withPoint&&ac.prevPts!==null){if(ac.a===1)state.pts1=ac.prevPts;else state.pts2=ac.prevPts;}logAction('↩ Undid: penalty');}renderScores();renderStalling();syncToSheet();}
+function undoLastMatch(){if(!matchResults.length)return;const last=matchResults.pop();state.teamPts1=last.prevT1;state.teamPts2=last.prevT2;state.matchNum=last.matchNum;resetMatchScores();selectedResult=null;selectedWinner=null;document.querySelectorAll('.result-btn').forEach(b=>b.classList.remove('selected'));logAction('↩ Undid Match '+last.matchNum+' result');updateMatchResultsLog();buildMatchProgress();renderAll();syncToSheet();}
+function selectResult(type,winner){selectedResult=type;selectedWinner=winner;document.querySelectorAll('.result-btn').forEach(b=>b.classList.remove('selected'));document.getElementById('res-'+type.substring(0,3)+winner)?.classList.add('selected');}
+function nextMatch(){if(!selectedResult){alert('Select a match result first.');return;}const wp=TP[selectedResult]||3,lp=selectedResult==='referee'?1:0;const pT1=state.teamPts1,pT2=state.teamPts2;if(selectedWinner===1){state.teamPts1+=wp;state.teamPts2+=lp;}else{state.teamPts2+=wp;state.teamPts1+=lp;}const wn=selectedWinner===1?state.name1:state.name2,ln=selectedWinner===1?state.name2:state.name1;matchResults.push({matchNum:state.matchNum,winner:wn,loser:ln,result:selectedResult,winnerSide:selectedWinner,pts1:state.pts1,pts2:state.pts2,teamPts1:state.teamPts1,teamPts2:state.teamPts2,prevT1:pT1,prevT2:pT2});logAction('Match '+state.matchNum+': '+wn+' wins by '+selectedResult);updateMatchResultsLog();const tm=state.mode==='womens'?3:state.mode==='supermatch'?1:5;if(state.matchNum<tm){state.matchNum++;const nextM=savedLineup[state.matchNum-1];if(nextM){state.name1=nextM.athlete1||'—';state.name2=nextM.athlete2||'—';}resetMatchScores();selectedResult=null;selectedWinner=null;document.querySelectorAll('.result-btn').forEach(b=>b.classList.remove('selected'));buildMatchProgress();renderAll();syncToSheet();}else logAction('All matches done! Submit bout result.');}
+function resetMatchScores(){state.pts1=0;state.pts2=0;state.stalling1=0;state.stalling2=0;state.penalties1=0;state.penalties2=0;state.timerSeconds=300;stopTimer();undoStack=[];}
+function updateMatchResultsLog(){const log=document.getElementById('matchResultsLog'),btn=document.getElementById('undoMatchBtn');btn.style.display=matchResults.length>0?'inline-block':'none';if(!matchResults.length){log.innerHTML='<span style="color:var(--text-dim);">No matches completed yet</span>';return;}log.innerHTML=matchResults.map(r=>`<div style="padding:4px 0;border-bottom:1px solid var(--border);font-size:11px;"><span style="color:var(--text-dim);">M${r.matchNum}</span> <strong>${r.winner}</strong> <span style="color:var(--text-dim);">def.</span> <strong>${r.loser}</strong> <span class="tag tag-green">${r.result}</span> <span style="color:var(--text-dim);margin-left:6px;">${r.teamPts1}–${r.teamPts2}</span></div>`).join('');}
+function submitBoutResult(){if(!matchResults.length){alert('No results to submit yet.');return;}const w=state.teamPts1>state.teamPts2?state.school1:state.teamPts2>state.teamPts1?state.school2:'TIE',l=state.teamPts1>state.teamPts2?state.school2:state.teamPts2>state.teamPts1?state.school1:'TIE';pendingAdvance={winner:w,loser:l,boutNum:state.boutNum};document.getElementById('confirmSummary').innerHTML=`<strong>${state.school1}</strong> ${state.teamPts1} — ${state.teamPts2} <strong>${state.school2}</strong><br><br>${matchResults.map(r=>`Match ${r.matchNum}: <strong>${r.winner}</strong> def. ${r.loser} (${r.result})`).join('<br>')}<br><br><strong>Winner: ${w}</strong>`;document.getElementById('confirmOverlay').classList.add('show');}
+function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('show');pendingAdvance=null;}
+async function confirmAdvance(){if(!pendingAdvance)return;document.getElementById('confirmOverlay').classList.remove('show');await sheetPost({action:'advanceBracket',boutNum:pendingAdvance.boutNum,winner:pendingAdvance.winner,loser:pendingAdvance.loser,team1Pts:state.teamPts1,team2Pts:state.teamPts2,resultType:'Points'});logAction('✅ Bout '+state.boutNum+' submitted.');pendingAdvance=null;await loadBracket();populateBoutSelect();broadcastBracket();}
+function setMode(mode){state.mode=mode;['mens','womens','supermatch'].forEach(m=>document.getElementById('tab-'+m).classList.toggle('active',m===mode));document.getElementById('boutSelect').innerHTML='<option value="">— Select Bout —</option>';populateBoutSelect();buildMatchProgress();renderAll();syncToSheet();}
+function buildMatchProgress(){const tm=state.mode==='womens'?3:state.mode==='supermatch'?1:5,c=document.getElementById('matchProgress');c.innerHTML='';for(let i=1;i<=tm;i++){const p=document.createElement('div');p.className='match-pip';const r=matchResults.find(x=>x.matchNum===i);if(r)p.classList.add(r.winnerSide===1?'done-red':'done-blue');else if(i===state.matchNum)p.classList.add('current');c.appendChild(p);}}
+function logAction(msg){actionLog.unshift({time:new Date().toLocaleTimeString(),msg});if(actionLog.length>30)actionLog.pop();document.getElementById('undoLog').innerHTML=actionLog.map(a=>`<div class="undo-entry"><span style="color:var(--text-dim);">${a.time}</span> ${a.msg}</div>`).join('');document.getElementById('lastAction').textContent=actionLog[0]?.msg||'—';}
+function setStatus(s){const d=document.getElementById('statusDot'),t=document.getElementById('statusText');if(s==='connected'){d.className='status-dot connected';t.textContent='Mat '+matId+' — Connected';}else if(s==='error'){d.className='status-dot error';t.textContent='Connection Error';}else{d.className='status-dot';t.textContent='Connecting...';}}
+function renderAll(){renderTimer();renderScores();renderStalling();renderTeamScores();renderAthletes();}
+function renderTimer(){const m=Math.floor(state.timerSeconds/60),s=state.timerSeconds%60,el=document.getElementById('timerDisplay');el.textContent=m+':'+s.toString().padStart(2,'0');el.className='timer-display'+(state.timerSeconds<=10?' danger':'');}
+function renderScores(){document.getElementById('scoreBox1').textContent=state.pts1;document.getElementById('scoreBox2').textContent=state.pts2;}
+function renderStalling(){[1,2].forEach(a=>{const sc=a===1?state.stalling1:state.stalling2,sd=document.getElementById('stallDots'+a).children;for(let i=0;i<4;i++){sd[i].className='stall-dot';if(i<sc)sd[i].classList.add(sc===4&&i===3?'dq':'active');}const pc=a===1?state.penalties1:state.penalties2,pd=document.getElementById('penDots'+a)?.children;if(pd)for(let i=0;i<4;i++){pd[i].className='stall-dot';if(i<pc)pd[i].classList.add(pc===4&&i===3?'dq':'active');}});}
+function renderTeamScores(){document.getElementById('teamScoreName1').textContent=state.school1;document.getElementById('teamScoreName2').textContent=state.school2;document.getElementById('teamScorePts1').textContent=state.teamPts1;document.getElementById('teamScorePts2').textContent=state.teamPts2;const h=hex=>{if(!hex||!hex.startsWith('#'))return'rgba(128,128,128,';const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return`rgba(${r},${g},${b},`;};document.getElementById('teamCard1').style.background=h(state.color1)+'0.15)';document.getElementById('teamCard1').style.borderColor=h(state.color1)+'0.5)';document.getElementById('teamCard2').style.background=h(state.color2)+'0.15)';document.getElementById('teamCard2').style.borderColor=h(state.color2)+'0.5)';}
+function renderAthletes(){document.getElementById('dispName1').textContent=state.name1||'—';document.getElementById('dispName2').textContent=state.name2||'—';document.getElementById('dispSchool1').textContent=state.school1||'—';document.getElementById('dispSchool2').textContent=state.school2||'—';}
+const SHORTCUTS={' ':()=>toggleTimer(),'r':()=>resetTimer(),'Enter':()=>nextMatch(),'0':()=>{resetMatchScores();renderAll();logAction('Scores reset');},'1':()=>addPoints(1,1,'Score'),'2':()=>addPoints(1,2,'Score'),'3':()=>addPoints(1,3,'Score'),'4':()=>addPoints(1,4,'Score'),'6':()=>addPoints(2,1,'Score'),'7':()=>addPoints(2,2,'Score'),'8':()=>addPoints(2,3,'Score'),'9':()=>addPoints(2,4,'Score'),'f':()=>addStalling(1),'g':()=>addPenaltyStrike(1,false),'h':()=>addStalling(2),'n':()=>addPenaltyStrike(2,false),'Backspace':()=>undo(),'p':()=>submitBoutResult()};
+document.addEventListener('keydown',e=>{if(e.target.tagName==='SELECT'||e.target.tagName==='INPUT')return;if(document.getElementById('confirmOverlay').classList.contains('show')){if(e.key==='Escape')closeConfirm();return;}const h=SHORTCUTS[e.key];if(h){e.preventDefault();h();}});
+
+// ── WebSocket relay (primary fast channel) ───────────────────────────────────
+const RELAY_URL = 'wss://cjl-relay.onrender.com';
+let relayWs = null;
+let relayConnected = false;
+
+function connectRelay() {
+  try {
+    relayWs = new WebSocket(RELAY_URL);
+    relayWs.onopen = () => {
+      relayConnected = true;
+      relayWs.send(JSON.stringify({ type: 'join', mat: matId }));
+      setRelayStatus(true);
+    };
+    relayWs.onclose = () => {
+      relayConnected = false;
+      setRelayStatus(false);
+      // Reconnect after 3 seconds
+      setTimeout(connectRelay, 3000);
+    };
+    relayWs.onerror = () => {
+      relayConnected = false;
+      setRelayStatus(false);
+      setTimeout(connectRelay, 3000);
+    };
+  } catch(e) {
+    relayConnected = false;
+    setRelayStatus(false);
+    setTimeout(connectRelay, 3000);
+  }
+}
+
+function setRelayStatus(connected) {
+  const d = document.getElementById('relayDot'), t = document.getElementById('relayText');
+  if (connected) {
+    d.className = 'status-dot connected';
+    t.textContent = 'Relay: connected';
+  } else {
+    d.className = 'status-dot error';
+    t.textContent = 'Relay: disconnected';
+  }
+}
+
+function broadcastState() {
+  if (!relayConnected || !relayWs || relayWs.readyState !== 1) return;
+  const msg = {
+    type: 'state', mat: matId,
+    name1:state.name1, school1:state.school1, color1:state.color1,
+    name2:state.name2, school2:state.school2, color2:state.color2,
+    pts1:state.pts1, pts2:state.pts2,
+    teamPts1:state.teamPts1, teamPts2:state.teamPts2,
+    stalling1:state.stalling1, stalling2:state.stalling2,
+    penalties1:state.penalties1, penalties2:state.penalties2,
+    timerSeconds:state.timerSeconds, timerRunning:state.timerRunning,
+    mode:state.mode, matchNum:state.matchNum, boutNum:state.boutNum
+  };
+  relayWs.send(JSON.stringify(msg));
+}
+
+function broadcastBracket() {
+  if (!relayConnected || !relayWs || relayWs.readyState !== 1) return;
+  relayWs.send(JSON.stringify({ type: 'bracket', channel: 'bracket', data: boutData }));
+}
+
+connectRelay();
+
+// Keepalive — ping every 25s to prevent Render dropping idle connections
+setInterval(function() {
+  if (relayWs && relayWs.readyState === 1) {
+    relayWs.send(JSON.stringify({ type: 'ping' }));
+  }
+}, 25000);
+
+init();
+</script>
+</body>
+</html>
