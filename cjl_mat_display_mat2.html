@@ -85,60 +85,78 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
   const RELAY_URL = 'wss://cjl-relay.onrender.com';
   const matId = 2;
 
-  document.getElementById('matLabel').textContent = 'Mat 2';
-
   let state = {mode:'mens',matchNum:1,pts1:0,pts2:0,stalling1:0,stalling2:0,penalties1:0,penalties2:0,teamPts1:0,teamPts2:0,timerSeconds:300,timerRunning:false,name1:'—',school1:'—',color1:'#AA0000',name2:'—',school2:'—',color2:'#00356B'};
   let timerInterval = null;
   let lastTimerRunning = false;
   let lastTimerSeconds = 300;
 
-  // WebSocket primary transport
   let ws = null;
   let wsConnected = false;
   let sheetPollInterval = null;
 
+  function stopSheetPolling() {
+    if (sheetPollInterval) {
+      clearInterval(sheetPollInterval);
+      sheetPollInterval = null;
+    }
+  }
+
+  function startSheetPolling() {
+    if (sheetPollInterval || wsConnected) return;
+    sheetPollInterval = setInterval(pollSheet, 10000); 
+    pollSheet(); 
+  }
+
   function connectWS() {
     try {
+      if (ws) {
+        try { ws.close(); } catch(e) {}
+      }
       ws = new WebSocket(RELAY_URL);
+      
       ws.onopen = function() {
         wsConnected = true;
         ws.send(JSON.stringify({ type: 'join', mat: matId }));
-        if (sheetPollInterval) { clearInterval(sheetPollInterval); sheetPollInterval = null; }
-        document.getElementById('connStatus').style.color = '#3d5af1';
+        stopSheetPolling(); 
+        document.getElementById('connStatus').style.color = '#3d5af1'; 
       };
+      
       ws.onmessage = function(e) {
-        try { var d = JSON.parse(e.data); if (d.type === 'state') applyState(d); } catch(err) {}
+        try { 
+          var d = JSON.parse(e.data); 
+          if (d.type === 'state') applyState(d); 
+        } catch(err) {}
       };
+      
       ws.onclose = function() {
         wsConnected = false;
-        if (!sheetPollInterval) sheetPollInterval = setInterval(pollSheet, 2000);
-        setTimeout(connectWS, 3000);
+        document.getElementById('connStatus').style.color = '#e24b4a'; 
+        startSheetPolling(); 
+        setTimeout(connectWS, 3000); 
       };
+      
       ws.onerror = function() {
         wsConnected = false;
-        if (!sheetPollInterval) sheetPollInterval = setInterval(pollSheet, 2000);
+        startSheetPolling();
         setTimeout(connectWS, 3000);
       };
     } catch(e) {
       wsConnected = false;
-      if (!sheetPollInterval) sheetPollInterval = setInterval(pollSheet, 2000);
+      startSheetPolling();
       setTimeout(connectWS, 3000);
     }
   }
 
-  // Sheets fallback
   async function pollSheet() {
+    if (wsConnected) return; 
     try {
       const res = await fetch(SHEET_URL + '?action=getMatch&mat=' + matId, {redirect:'follow'});
       const data = JSON.parse(await res.text());
-      applyState(data);
-      if (!wsConnected) document.getElementById('connStatus').style.color = '#27ae60';
-    } catch(e) {
-      if (!wsConnected) document.getElementById('connStatus').style.color = '#e24b4a';
-    }
+      if (data) applyState(data);
+      document.getElementById('connStatus').style.color = '#27ae60'; 
+    } catch(e) {}
   }
 
-  // localStorage (instant, same machine)
   window.addEventListener('storage', function(e) {
     if (e.key === 'cjl_mat_' + matId) {
       try { applyState(JSON.parse(e.newValue)); } catch(err) {}
@@ -146,90 +164,99 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
   });
 
   function applyState(data) {
-  if (data.name1 !== undefined) state.name1 = data.name1;
-  if (data.name2 !== undefined) state.name2 = data.name2;
-  if (data.school1 !== undefined) state.school1 = data.school1;
-  if (data.school2 !== undefined) state.school2 = data.school2;
-  if (data.color1 !== undefined) state.color1 = data.color1;
-  if (data.color2 !== undefined) state.color2 = data.color2;
-  if (data.pts1 !== undefined) state.pts1 = parseInt(data.pts1)||0;
-  if (data.pts2 !== undefined) state.pts2 = parseInt(data.pts2)||0;
-  if (data.teamPts1 !== undefined) state.teamPts1 = parseInt(data.teamPts1)||0;
-  if (data.teamPts2 !== undefined) state.teamPts2 = parseInt(data.teamPts2)||0;
-  if (data.stalling1 !== undefined) state.stalling1 = parseInt(data.stalling1)||0;
-  if (data.stalling2 !== undefined) state.stalling2 = parseInt(data.stalling2)||0;
-  if (data.penalties1 !== undefined) state.penalties1 = parseInt(data.penalties1)||0;
-  if (data.penalties2 !== undefined) state.penalties2 = parseInt(data.penalties2)||0;
-  if (data.mode !== undefined) state.mode = data.mode;
-  if (data.matchNum !== undefined) state.matchNum = parseInt(data.matchNum)||1;
-  var ns = parseInt(data.timerSeconds)||300;
-  var nr = data.timerRunning==='true'||data.timerRunning===true;
-  if (Math.abs(ns - lastTimerSeconds) > 1) { state.timerSeconds=ns; } lastTimerSeconds=ns;
-  if (nr !== lastTimerRunning) { lastTimerRunning=nr; if (nr) startTimer(); else stopTimer(); }
-  render();
-}
-  function startTimer() {
-  if (timerInterval) return;
-  timerInterval = setInterval(function() {
-    if (state.timerSeconds > 0) { state.timerSeconds--; renderTimer(); }
-    else { clearInterval(timerInterval); timerInterval=null; }
-  }, 1000);
-}
-function stopTimer() { clearInterval(timerInterval); timerInterval=null; }
-  function render() {
-  document.getElementById('name1').textContent = state.name1;
-  document.getElementById('name2').textContent = state.name2;
-  document.getElementById('school1').textContent = state.school1;
-  document.getElementById('school2').textContent = state.school2;
-  document.getElementById('pts1').textContent = state.pts1;
-  document.getElementById('pts2').textContent = state.pts2;
-  document.getElementById('tn1').textContent = state.school1;
-  document.getElementById('tn2').textContent = state.school2;
-  document.getElementById('tp1').textContent = state.teamPts1;
-  document.getElementById('tp2').textContent = state.teamPts2;
-  document.getElementById('tc1').style.background = hexRgba(state.color1, 0.12);
-  document.getElementById('tc1').style.borderColor = hexRgba(state.color1, 0.3);
-  document.getElementById('tc2').style.background = hexRgba(state.color2, 0.12);
-  document.getElementById('tc2').style.borderColor = hexRgba(state.color2, 0.3);
-  renderDots('s1', state.stalling1);
-  renderDots('s2', state.stalling2);
-  renderDots('p1', state.penalties1);
-  renderDots('p2', state.penalties2);
-  var total = state.mode==='womens'?3:5;
-  var div = state.mode==='womens'?"Women's 3-on-3":state.mode==='supermatch'?'Supermatch':"Men's Quintet";
-  document.getElementById('matchLabel').textContent = state.mode==='supermatch'?'Supermatch':'Match '+state.matchNum+' of '+total+' — '+div;
-  document.body.className = state.mode==='supermatch'?'supermatch':'';
-  renderTimer();
-}
-function renderTimer() {
-  var m=Math.floor(state.timerSeconds/60), s=state.timerSeconds%60;
-  var el=document.getElementById('timer');
-  el.textContent=m+':'+s.toString().padStart(2,'0');
-  el.className='timer'+(state.timerSeconds<=10?' danger':'');
-}
-function renderDots(id, count) {
-  var dots=document.getElementById(id).children;
-  for (var i=0;i<4;i++) { dots[i].className='dot'; if(i<count) dots[i].classList.add(count===4&&i===3?'dq':'active'); }
-}
-function hexRgba(hex, a) {
-  if (!hex||!hex.startsWith('#')) return 'rgba(128,128,128,'+a+')';
-  var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-  return 'rgba('+r+','+g+','+b+','+a+')';
-}
-render();
-
-  // Boot: start sheet poll immediately, then connect WS (stops poll when ready)
-  sheetPollInterval = setInterval(pollSheet, 2000);
-  pollSheet();
-  connectWS();
-
-  // Keepalive ping every 25 seconds to prevent Render dropping the connection
-  setInterval(function() {
-    if (ws && ws.readyState === 1) {
-      ws.send(JSON.stringify({ type: 'ping' }));
+    if (!data) return;
+    if (data.name1 !== undefined) state.name1 = data.name1;
+    if (data.name2 !== undefined) state.name2 = data.name2;
+    if (data.school1 !== undefined) state.school1 = data.school1;
+    if (data.school2 !== undefined) state.school2 = data.school2;
+    if (data.color1 !== undefined) state.color1 = data.color1;
+    if (data.color2 !== undefined) state.color2 = data.color2;
+    if (data.pts1 !== undefined) state.pts1 = parseInt(data.pts1)||0;
+    if (data.pts2 !== undefined) state.pts2 = parseInt(data.pts2)||0;
+    if (data.teamPts1 !== undefined) state.teamPts1 = parseInt(data.teamPts1)||0;
+    if (data.teamPts2 !== undefined) state.teamPts2 = parseInt(data.teamPts2)||0;
+    if (data.stalling1 !== undefined) state.stalling1 = parseInt(data.stalling1)||0;
+    if (data.stalling2 !== undefined) state.stalling2 = parseInt(data.stalling2)||0;
+    if (data.penalties1 !== undefined) state.penalties1 = parseInt(data.penalties1)||0;
+    if (data.penalties2 !== undefined) state.penalties2 = parseInt(data.penalties2)||0;
+    if (data.mode !== undefined) state.mode = data.mode;
+    if (data.matchNum !== undefined) state.matchNum = parseInt(data.matchNum)||1;
+    
+    if (data.timerSeconds !== undefined) {
+      state.timerSeconds = parseInt(data.timerSeconds)||300;
     }
-  }, 25000);
+    
+    var nr = data.timerRunning==='true'||data.timerRunning===true;
+    if (nr !== lastTimerRunning) { 
+      lastTimerRunning = nr; 
+      if (nr) startTimer(); else stopTimer(); 
+    }
+    render();
+  }
 
+  function startTimer() {
+    if (timerInterval) return;
+    timerInterval = setInterval(function() {
+      if (state.timerSeconds > 0) { state.timerSeconds--; renderTimer(); }
+      else { clearInterval(timerInterval); timerInterval=null; }
+    }, 1000);
+  }
+
+  function stopTimer() { clearInterval(timerInterval); timerInterval=null; }
+
+  function render() {
+    document.getElementById('name1').textContent = state.name1;
+    document.getElementById('name2').textContent = state.name2;
+    document.getElementById('school1').textContent = state.school1;
+    document.getElementById('school2').textContent = state.school2;
+    document.getElementById('pts1').textContent = state.pts1;
+    document.getElementById('pts2').textContent = state.pts2;
+    document.getElementById('tn1').textContent = state.school1;
+    document.getElementById('tn2').textContent = state.school2;
+    document.getElementById('tp1').textContent = state.teamPts1;
+    document.getElementById('tp2').textContent = state.teamPts2;
+    document.getElementById('tc1').style.background = hexRgba(state.color1, 0.12);
+    document.getElementById('tc1').style.borderColor = hexRgba(state.color1, 0.3);
+    document.getElementById('tc2').style.background = hexRgba(state.color2, 0.12);
+    document.getElementById('tc2').style.borderColor = hexRgba(state.color2, 0.3);
+    renderDots('s1', state.stalling1);
+    renderDots('s2', state.stalling2);
+    renderDots('p1', state.penalties1);
+    renderDots('p2', state.penalties2);
+    var total = state.mode==='womens'?3:5;
+    var div = state.mode==='womens'?"Women's 3-on-3":state.mode==='supermatch'?'Supermatch':"Men's Quintet";
+    document.getElementById('matchLabel').textContent = state.mode==='supermatch'?'Supermatch':'Match '+state.matchNum+' of '+total+' — '+div;
+    document.body.className = state.mode==='supermatch'?'supermatch':'';
+    renderTimer();
+  }
+
+  function renderTimer() {
+    var m=Math.floor(state.timerSeconds/60), s=state.timerSeconds%60;
+    var el=document.getElementById('timer');
+    if(el) {
+      el.textContent=m+':'+s.toString().padStart(2,'0');
+      el.className='timer'+(state.timerSeconds<=10?' danger':'');
+    }
+  }
+
+  function renderDots(id, count) {
+    var container = document.getElementById(id);
+    if(!container) return;
+    var dots=container.children;
+    for (var i=0;i<4;i++) { if(dots[i]) { dots[i].className='dot'; if(i<count) dots[i].classList.add(count===4&&i===3?'dq':'active'); } }
+  }
+
+  function hexRgba(hex, a) {
+    if (!hex||!hex.startsWith('#')) return 'rgba(128,128,128,'+a+')';
+    var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+    return 'rgba('+r+','+g+','+b+','+a+')';
+  }
+
+  connectWS();        
+
+  setInterval(function() {
+    if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type: 'ping' }));
+  }, 25000);
 </script>
 </body>
 </html>
