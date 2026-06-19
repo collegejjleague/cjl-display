@@ -86,10 +86,7 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
   const matId = 3;
 
   let state = {mode:'mens',matchNum:1,pts1:0,pts2:0,stalling1:0,stalling2:0,penalties1:0,penalties2:0,teamPts1:0,teamPts2:0,timerSeconds:300,timerRunning:false,name1:'—',school1:'—',color1:'#AA0000',name2:'—',school2:'—',color2:'#00356B'};
-  let timerInterval = null;
-  let lastTimerRunning = false;
-  let lastTimerSeconds = 300;
-
+  
   let ws = null;
   let wsConnected = false;
   let sheetPollInterval = null;
@@ -186,23 +183,8 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
       state.timerSeconds = parseInt(data.timerSeconds)||300;
     }
     
-    var nr = data.timerRunning==='true'||data.timerRunning===true;
-    if (nr !== lastTimerRunning) { 
-      lastTimerRunning = nr; 
-      if (nr) startTimer(); else stopTimer(); 
-    }
     render();
   }
-
-  function startTimer() {
-    if (timerInterval) return;
-    timerInterval = setInterval(function() {
-      if (state.timerSeconds > 0) { state.timerSeconds--; renderTimer(); }
-      else { clearInterval(timerInterval); timerInterval=null; }
-    }, 1000);
-  }
-
-  function stopTimer() { clearInterval(timerInterval); timerInterval=null; }
 
   function render() {
     document.getElementById('name1').textContent = state.name1;
