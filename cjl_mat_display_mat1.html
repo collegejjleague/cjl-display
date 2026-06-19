@@ -102,9 +102,12 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
   }
 
   function startSheetPolling() {
+    // ONLY allow the sheet to be touched if the WebSocket is confirmed disconnected
     if (sheetPollInterval || wsConnected) return;
+    
+    // Slow fallback interval (10s) just in case, ensuring zero accidental API spam
+    sheetPollInterval = setInterval(pollSheet, 10000); 
     pollSheet(); 
-    sheetPollInterval = setInterval(pollSheet, 3000);
   }
 
   function connectWS() {
@@ -112,13 +115,14 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
       if (ws) {
         try { ws.close(); } catch(e) {}
       }
+      
       ws = new WebSocket(RELAY_URL);
       
       ws.onopen = function() {
         wsConnected = true;
         ws.send(JSON.stringify({ type: 'join', mat: matId }));
-        stopSheetPolling(); // WebSocket successfully took over, KILL the spreadsheet loop completely
-        document.getElementById('connStatus').style.color = '#3d5af1'; // Blue = Real-time WebSocket
+        stopSheetPolling(); // Hard kill the sheet fallback immediately
+        document.getElementById('connStatus').style.color = '#3d5af1'; // Blue = Active Real-time Relay
       };
       
       ws.onmessage = function(e) {
@@ -131,28 +135,31 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
       ws.onclose = function() {
         wsConnected = false;
         document.getElementById('connStatus').style.color = '#e24b4a'; // Red = Disconnected
-        startSheetPolling(); // Re-engage spreadsheet backup loop only on failure
-        setTimeout(connectWS, 4000);
+        startSheetPolling(); // Engage safety backup sheet line
+        
+        // Aggressive 3-second retry loop to force reconnection to the relay
+        setTimeout(connectWS, 3000); 
       };
       
       ws.onerror = function() {
         wsConnected = false;
         startSheetPolling();
+        setTimeout(connectWS, 3000);
       };
     } catch(e) {
       wsConnected = false;
       startSheetPolling();
-      setTimeout(connectWS, 4000);
+      setTimeout(connectWS, 3000);
     }
   }
 
   async function pollSheet() {
-    if (wsConnected) return; // Hard stop: Do absolutely nothing if WebSocket is working
+    if (wsConnected) return; // Strict block: if WebSocket is alive, do nothing
     try {
       const res = await fetch(SHEET_URL + '?action=getMatch&mat=' + matId, {redirect:'follow'});
       const data = JSON.parse(await res.text());
       if (data) applyState(data);
-      document.getElementById('connStatus').style.color = '#27ae60'; // Green = Fallback mode active
+      document.getElementById('connStatus').style.color = '#27ae60'; // Green = Fallback mode
     } catch(e) {}
   }
 
@@ -251,10 +258,12 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
     return 'rgba('+r+','+g+','+b+','+a+')';
   }
 
-  // Pure Failure-Only Safe Boot Chain
-  startSheetPolling(); // Boot into fallback mode immediately
-  connectWS();        // Attempt instant relay link to overwrite fallback
+  // --- CLEAN WS-FIRST INITIALIZATION ---
+  // We do NOT call startSheetPolling() here.
+  // The system launches completely dark and hunts exclusively for the relay server.
+  connectWS();        
 
+  // Keepalive ping to ensure the Render connection remains active
   setInterval(function() {
     if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type: 'ping' }));
   }, 25000);
