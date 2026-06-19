@@ -96,7 +96,6 @@ const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwp2W4G2mYd5cC2e9xBgJ
   let wsConnected = false;
   let sheetPollInterval = null;
 
-  // Clear sheet polling safely
   function stopSheetPolling() {
     if (sheetPollInterval) {
       clearInterval(sheetPollInterval);
@@ -104,10 +103,10 @@ const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwp2W4G2mYd5cC2e9xBgJ
     }
   }
 
-  // Start sheet polling safely
   function startSheetPolling() {
+    // Only allow spreadsheet fallback if WebSocket is completely disconnected
     if (!sheetPollInterval && !wsConnected) {
-      sheetPollInterval = setInterval(pollSheet, 2000);
+      sheetPollInterval = setInterval(pollSheet, 3000); // 3 second fallback intervals
     }
   }
 
@@ -117,8 +116,8 @@ const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwp2W4G2mYd5cC2e9xBgJ
       ws.onopen = function() {
         wsConnected = true;
         ws.send(JSON.stringify({ type: 'join', mat: matId }));
-        stopSheetPolling(); // Kill spreadsheet poll immediately on WS connection
-        document.getElementById('connStatus').style.color = '#3d5af1';
+        stopSheetPolling(); // WebSocket is alive, KILL the spreadsheet loop completely
+        document.getElementById('connStatus').style.color = '#3d5af1'; // Blue = Real-time WebSocket
       };
       ws.onmessage = function(e) {
         try { 
@@ -128,12 +127,13 @@ const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwp2W4G2mYd5cC2e9xBgJ
       };
       ws.onclose = function() {
         wsConnected = false;
-        startSheetPolling(); // Re-engage spreadsheet fallback
+        document.getElementById('connStatus').style.color = '#e24b4a'; // Red = Disconnected
+        startSheetPolling(); // Bring back spreadsheet as emergency backup
         setTimeout(connectWS, 3000);
       };
       ws.onerror = function() {
         wsConnected = false;
-        startSheetPolling(); // Re-engage spreadsheet fallback
+        startSheetPolling();
         setTimeout(connectWS, 3000);
       };
     } catch(e) {
@@ -143,20 +143,18 @@ const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwp2W4G2mYd5cC2e9xBgJ
     }
   }
 
-  // Sheets fallback
+  // Sheets backup fallback loop
   async function pollSheet() {
-    if (wsConnected) return; // Prevent overwrites if WS is up
+    if (wsConnected) return; // Hard stop: Do absolutely nothing if WebSocket is working
     try {
       const res = await fetch(SHEET_URL + '?action=getMatch&mat=' + matId, {redirect:'follow'});
       const data = JSON.parse(await res.text());
       applyState(data);
-      document.getElementById('connStatus').style.color = '#27ae60';
-    } catch(e) {
-      document.getElementById('connStatus').style.color = '#e24b4a';
-    }
+      document.getElementById('connStatus').style.color = '#27ae60'; // Green = Fallback mode active
+    } catch(e) {}
   }
 
-  // localStorage (instant, same machine)
+  // localStorage (instant updates if control panel is open on the same computer)
   window.addEventListener('storage', function(e) {
     if (e.key === 'cjl_mat_' + matId) {
       try { applyState(JSON.parse(e.newValue)); } catch(err) {}
@@ -181,14 +179,14 @@ const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwp2W4G2mYd5cC2e9xBgJ
     if (data.mode !== undefined) state.mode = data.mode;
     if (data.matchNum !== undefined) state.matchNum = parseInt(data.matchNum)||1;
     
-    var ns = parseInt(data.timerSeconds)||300;
+    // TIMER FIX: Always trust the incoming data over the WebSocket rather than checking Math.abs differences
+    if (data.timerSeconds !== undefined) {
+      state.timerSeconds = parseInt(data.timerSeconds)||300;
+    }
+    
     var nr = data.timerRunning==='true'||data.timerRunning===true;
-    
-    if (Math.abs(ns - lastTimerSeconds) > 1) { state.timerSeconds=ns; } 
-    lastTimerSeconds=ns;
-    
     if (nr !== lastTimerRunning) { 
-      lastTimerRunning=nr; 
+      lastTimerRunning = nr; 
       if (nr) startTimer(); else stopTimer(); 
     }
     render();
@@ -248,15 +246,11 @@ const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwp2W4G2mYd5cC2e9xBgJ
     return 'rgba('+r+','+g+','+b+','+a+')';
   }
 
-  // BOOT ORDER
-  // 1. Initial manual poll to get fast baseline info
-  pollSheet();
-  // 2. Try WebSocket connection immediately. If successful, it manages polling termination.
+  // Pure WebSocket-First Initialization
+  // We do NOT call pollSheet() here anymore. We let the control board push the initial data.
   connectWS();
-  // 3. Fallback tracking just in case WebSocket fails right off the bat
-  setTimeout(() => { if(!wsConnected) startSheetPolling(); }, 1000);
 
-  // Keepalive ping every 25 seconds
+  // Keepalive ping every 25 seconds to prevent Render dropping the connection
   setInterval(function() {
     if (ws && ws.readyState === 1) {
       ws.send(JSON.stringify({ type: 'ping' }));
