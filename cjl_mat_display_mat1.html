@@ -80,12 +80,10 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
     <div class="team-score-card right" id="tc2"><span class="team-pts blue" id="tp2">0</span><span class="team-name" id="tn2">Yale</span></div>
   </div>
 </div>
-<script>
+  <script>
   const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwp2W4G2mYd5cC2e9xBgJ3S_q_3jypZiCpaxI0iF5_1f5XbdLKQQyO65OGZbBScXlddcw/exec';
   const RELAY_URL = 'wss://cjl-relay.onrender.com';
   const matId = 1;
-
-  document.getElementById('matLabel').textContent = 'Mat 1';
 
   let state = {mode:'mens',matchNum:1,pts1:0,pts2:0,stalling1:0,stalling2:0,penalties1:0,penalties2:0,teamPts1:0,teamPts2:0,timerSeconds:300,timerRunning:false,name1:'—',school1:'—',color1:'#AA0000',name2:'—',school2:'—',color2:'#00356B'};
   let timerInterval = null;
@@ -96,116 +94,68 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
   let wsConnected = false;
   let sheetPollInterval = null;
 
-  // DIAGNOSTIC LOGGING FUNCTION
-  function logStatus(msg, color) {
-    console.log("[CJL Debug] " + msg);
-    const statusEl = document.getElementById('connStatus');
-    if (statusEl) {
-      statusEl.style.color = color;
-      statusEl.title = msg; // Hovering over the dot reveals the exact error
-    }
-  }
-
   function stopSheetPolling() {
     if (sheetPollInterval) {
       clearInterval(sheetPollInterval);
       sheetPollInterval = null;
-      logStatus("Sheet polling loop cleared.", "#3d5af1");
     }
   }
 
   function startSheetPolling() {
-    if (wsConnected) return; 
-    if (!sheetPollInterval) {
-      logStatus("Starting emergency Sheet backup loop...", "#27ae60");
-      pollSheet(); // Fire immediately once
-      sheetPollInterval = setInterval(pollSheet, 3000);
-    }
+    if (sheetPollInterval || wsConnected) return;
+    pollSheet(); 
+    sheetPollInterval = setInterval(pollSheet, 3000);
   }
 
   function connectWS() {
-    logStatus("Attempting connection to Relay Server...", "#f5a623");
-    
     try {
       if (ws) {
-        ws.onopen = null;
-        ws.onmessage = null;
-        ws.onclose = null;
-        ws.onerror = null;
         try { ws.close(); } catch(e) {}
       }
-
       ws = new WebSocket(RELAY_URL);
       
       ws.onopen = function() {
         wsConnected = true;
-        logStatus("Connected to WebSocket Relay!", "#3d5af1"); // Blue
         ws.send(JSON.stringify({ type: 'join', mat: matId }));
-        stopSheetPolling(); 
+        stopSheetPolling(); // WebSocket successfully took over, KILL the spreadsheet loop completely
+        document.getElementById('connStatus').style.color = '#3d5af1'; // Blue = Real-time WebSocket
       };
       
       ws.onmessage = function(e) {
         try { 
           var d = JSON.parse(e.data); 
-          if (d.type === 'state') {
-            applyState(d);
-          }
-        } catch(err) {
-          logStatus("JSON Parse Error on incoming data.", "#e24b4a");
-        }
+          if (d.type === 'state') applyState(d); 
+        } catch(err) {}
       };
       
-      ws.onclose = function(e) {
-        if (wsConnected) {
-          wsConnected = false;
-          logStatus("Relay connection closed. Reason: " + e.reason, "#e24b4a"); // Red
-        }
-        startSheetPolling(); 
-        setTimeout(connectWS, 5000); // Reconnect loop
-      };
-      
-      ws.onerror = function(err) {
+      ws.onclose = function() {
         wsConnected = false;
-        logStatus("Relay Network Error. Checking fallback...", "#e24b4a");
+        document.getElementById('connStatus').style.color = '#e24b4a'; // Red = Disconnected
+        startSheetPolling(); // Re-engage spreadsheet backup loop only on failure
+        setTimeout(connectWS, 4000);
+      };
+      
+      ws.onerror = function() {
+        wsConnected = false;
         startSheetPolling();
       };
-      
     } catch(e) {
       wsConnected = false;
-      logStatus("Critical WebSocket initialization failure.", "#e24b4a");
       startSheetPolling();
-      setTimeout(connectWS, 5000);
+      setTimeout(connectWS, 4000);
     }
   }
 
   async function pollSheet() {
-    if (wsConnected) return; // Strict lock out if WebSocket took over
-    
-    logStatus("Polling Google Sheet for updates...", "#27ae60"); // Green
+    if (wsConnected) return; // Hard stop: Do absolutely nothing if WebSocket is working
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2500); // Kill request if hanging
-
-      const res = await fetch(SHEET_URL + '?action=getMatch&mat=' + matId, {
-        redirect: 'follow',
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-      
-      const text = await res.text();
-      const data = JSON.parse(text);
-      
-      // Safety net: ensure it's valid data before updating
-      if (data && (data.name1 !== undefined || data.pts1 !== undefined)) {
-        applyState(data);
-        logStatus("Sheet poll successful.", "#27ae60");
-      }
-    } catch(e) {
-      logStatus("Sheet fetch failed (Network/CORS block).", "#e24b4a");
-    }
+      const res = await fetch(SHEET_URL + '?action=getMatch&mat=' + matId, {redirect:'follow'});
+      const data = JSON.parse(await res.text());
+      if (data) applyState(data);
+      document.getElementById('connStatus').style.color = '#27ae60'; // Green = Fallback mode active
+    } catch(e) {}
   }
 
-  // Local storage listener for instant local machine sync
   window.addEventListener('storage', function(e) {
     if (e.key === 'cjl_mat_' + matId) {
       try { applyState(JSON.parse(e.newValue)); } catch(err) {}
@@ -282,7 +232,7 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
   function renderTimer() {
     var m=Math.floor(state.timerSeconds/60), s=state.timerSeconds%60;
     var el=document.getElementById('timer');
-    if (el) {
+    if(el) {
       el.textContent=m+':'+s.toString().padStart(2,'0');
       el.className='timer'+(state.timerSeconds<=10?' danger':'');
     }
@@ -290,14 +240,9 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
 
   function renderDots(id, count) {
     var container = document.getElementById(id);
-    if (!container) return;
-    var dots = container.children;
-    for (var i=0;i<4;i++) { 
-      if(dots[i]) {
-        dots[i].className='dot'; 
-        if(i<count) dots[i].classList.add(count===4&&i===3?'dq':'active'); 
-      }
-    }
+    if(!container) return;
+    var dots=container.children;
+    for (var i=0;i<4;i++) { if(dots[i]) { dots[i].className='dot'; if(i<count) dots[i].classList.add(count===4&&i===3?'dq':'active'); } }
   }
 
   function hexRgba(hex, a) {
@@ -306,16 +251,13 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
     return 'rgba('+r+','+g+','+b+','+a+')';
   }
 
-  // --- ARMORED BOOT SEQUENCE ---
-  // Start fallback right away so the user isn't stuck with a broken interface.
-  startSheetPolling();
-  
-  // Kick off WebSocket check. If it succeeds, it cleanly murders the sheet poll.
-  connectWS();
+  // Pure Failure-Only Safe Boot Chain
+  startSheetPolling(); // Boot into fallback mode immediately
+  connectWS();        // Attempt instant relay link to overwrite fallback
 
-  // Ping intervals to keep Render awake
   setInterval(function() {
-    if (ws && ws.readyState === 1) {
-      ws.send(JSON.stringify({ type: 'ping' }));
-    }
-  }, 23000);
+    if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type: 'ping' }));
+  }, 25000);
+</script>
+</body>
+</html>
