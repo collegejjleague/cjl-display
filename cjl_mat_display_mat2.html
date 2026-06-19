@@ -13,73 +13,102 @@ html,body{width:100vw;height:100vh;background:#111;font-family:'Barlow Condensed
 .logo-area img{height:48px;opacity:0.85;}
 .mat-label{font-size:16px;font-weight:600;color:#666;letter-spacing:3px;text-transform:uppercase;font-family:'Barlow',sans-serif;}
 .match-label{text-align:center;font-size:18px;font-weight:600;color:#888;letter-spacing:3px;text-transform:uppercase;font-family:'Barlow',sans-serif;}
-.timer{text-align:center;font-size:120px;font-weight:900;letter-spacing:8px;line-height:1;color:#fff;transition:color 0.3s;}
-.timer.danger{color:#e24b4a;}
-.scores-row{display:grid;grid-template-columns:1fr 70px 1fr;gap:14px;align-items:stretch;flex:1;}
-.athlete-card{background:#1e1e1e;border-radius:14px;padding:24px 30px;display:flex;flex-direction:column;justify-content:space-between;}
-.athlete-card.right{align-items:flex-end;}
-.school-name{font-size:18px;font-weight:500;color:#888;letter-spacing:2px;text-transform:uppercase;font-family:'Barlow',sans-serif;margin-bottom:6px;}
-.athlete-name{font-size:52px;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;}
-.points-box{font-size:130px;font-weight:900;line-height:1;width:180px;text-align:center;border-radius:14px;padding:12px 0;}
-.points-red{background:#c0392b;color:#fff;}.points-blue{background:#1a5fa8;color:#fff;}
-.indicators{margin-top:16px;display:flex;flex-direction:column;gap:12px;}
-.indicator-row{display:flex;align-items:center;gap:12px;}
-.indicator-row.right{flex-direction:row-reverse;}
-.indicator-label{font-size:14px;color:#666;letter-spacing:1.5px;text-transform:uppercase;font-family:'Barlow',sans-serif;min-width:70px;}
-.strike-dots{display:flex;gap:10px;}
-.dot{width:26px;height:26px;border-radius:50%;border:3px solid #333;background:transparent;transition:all 0.2s;}
-.dot.active{background:#f5a623;border-color:#f5a623;}.dot.dq{background:#e24b4a;border-color:#e24b4a;}
-.vs-center{display:flex;align-items:center;justify-content:center;font-size:28px;color:#333;font-weight:700;}
-.divider{height:1px;background:#222;}
-.team-scores{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.team-score-card{border-radius:12px;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;}
-.team-score-card.left{background:rgba(170,0,0,0.15);border:1px solid rgba(170,0,0,0.4);}
-.team-score-card.right{background:rgba(0,53,107,0.15);border:1px solid rgba(0,53,107,0.4);}
-.team-name{font-size:26px;font-weight:700;color:#ccc;text-transform:uppercase;letter-spacing:1px;}
-.team-pts{font-size:64px;font-weight:900;}
-.team-pts.red{color:#e24b4a;}.team-pts.blue{color:#4a90d9;}
-body.supermatch .team-scores,body.supermatch .divider{display:none;}
-.connection-status{font-size:10px;color:#444;letter-spacing:1px;text-transform:uppercase;}
+.connection-status{font-size:14px;font-weight:600;color:#e24b4a;letter-spacing:2px;font-family:'Barlow',sans-serif;transition:color 0.3s;}
+.main-grid{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:24px;min-height:0;}
+.team-card{display:flex;flex-direction:column;border:2px solid rgba(255,255,255,0.05);border-radius:16px;padding:24px;justify-content:space-between;min-height:0;transition:background 0.5s, border-color 0.5s;}
+.athlete-info{display:flex;flex-direction:column;gap:4px;}
+.athlete-name{font-size:72px;font-weight:900;line-height:1.05;text-transform:uppercase;letter-spacing:-1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.school-name{font-size:28px;font-weight:500;color:#aaa;text-transform:uppercase;letter-spacing:1px;font-family:'Barlow',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.score-area{display:flex;align-items:baseline;justify-content:space-between;margin-top:auto;}
+.points{font-size:240px;font-weight:900;line-height:0.8;letter-spacing:-6px;}
+.indicators{display:flex;flex-direction:column;gap:16px;align-items:flex-end;margin-bottom:20px;}
+.indicator-group{display:flex;align-items:center;gap:12px;}
+.ind-label{font-size:14px;font-weight:600;color:#666;letter-spacing:2px;text-transform:uppercase;font-family:'Barlow',sans-serif;width:40px;text-align:right;}
+.dots{display:flex;gap:8px;}
+.dot{width:16px;height:16px;border-radius:50%;background:#222;border:2px solid #333;transition:all 0.2s;}
+.dot.active{background:#ffcc00;border-color:#ffcc00;box-shadow:0 0 12px rgba(255,204,0,0.4);}
+.dot.dq{background:#e24b4a;border-color:#e24b4a;box-shadow:0 0 12px rgba(226,75,74,0.4);}
+.bottom-bar{display:grid;grid-template-columns:1fr 240px 1fr;align-items:center;padding:12px 0 4px 0;}
+.team-total{display:flex;align-items:center;gap:16px;font-size:22px;font-weight:600;color:#aaa;}
+.team-total.right{justify-content:flex-end;}
+.total-label{font-size:14px;color:#555;letter-spacing:2px;text-transform:uppercase;font-family:'Barlow',sans-serif;}
+.total-pts{font-size:32px;font-weight:900;color:#fff;background:#222;padding:4px 14px;border-radius:8px;min-width:50px;text-align:center;}
+.timer-container{display:flex;justify-content:center;}
+.timer{font-size:100px;font-weight:900;line-height:0.8;letter-spacing:-2px;text-align:center;color:#fff;min-width:220px;}
+.timer.danger{color:#e24b4a;animation:pulse 1s infinite alternate;}
+body.supermatch .indicator-group, body.supermatch .bottom-bar { display: none !important; }
+body.supermatch .main-grid { margin-bottom: 24px; }
+@keyframes pulse{from{opacity:1;}to{opacity:0.7;}}
 </style>
 </head>
 <body>
 <div class="wrapper">
   <div class="top-bar">
     <div class="logo-area">
-      <img src="data:image/png;base64,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" alt="CJL">
-      <div class="mat-label" id="matLabel">Mat 1</div>
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAMAAAALXilVAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAAZQTFRF////AAAAVcLTfgAAAAF0Uk5TAEDm2GYAAAAnSURBVHja7MExAQAAAMKg9U9tCy+gAAAAAAAAAAAAAAAAAAAAAAAAOC8CDAAfAAE9b97JAAAAAElFTkSuQmCC">
+      <div class="mat-label">Mat 2</div>
     </div>
-    <div class="match-label" id="matchLabel">Match 1 of 5 — Men's Quintet</div>
-    <div class="connection-status" id="connStatus">●</div>
+    <div class="match-label" id="matchLabel">Loading Match...</div>
+    <div class="connection-status" id="connStatus">● WS</div>
   </div>
-  <div class="timer" id="timer">5:00</div>
-  <div class="scores-row">
-    <div class="athlete-card left">
-      <div class="school-name" id="school1">Harvard</div>
-      <div class="athlete-name" id="name1">J. Smith</div>
-      <div class="points-box points-red" id="pts1">0</div>
-      <div class="indicators">
-        <div class="indicator-row"><span class="indicator-label">Stalling</span><div class="strike-dots" id="s1"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
-        <div class="indicator-row"><span class="indicator-label">Penalty</span><div class="strike-dots" id="p1"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+
+  <div class="main-grid">
+    <div class="team-card" id="tc1">
+      <div class="athlete-info">
+        <div class="athlete-name" id="name1">—</div>
+        <div class="school-name" id="school1">—</div>
+      </div>
+      <div class="score-area">
+        <div class="points" id="pts1">0</div>
+        <div class="indicators">
+          <div class="indicator-group">
+            <div class="ind-label">STAL</div>
+            <div class="dots" id="s1"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          </div>
+          <div class="indicator-group">
+            <div class="ind-label">PEN</div>
+            <div class="dots" id="p1"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="vs-center">vs</div>
-    <div class="athlete-card right">
-      <div class="school-name" id="school2">Yale</div>
-      <div class="athlete-name" id="name2">A. Taylor</div>
-      <div class="points-box points-blue" id="pts2">0</div>
-      <div class="indicators">
-        <div class="indicator-row right"><span class="indicator-label">Stalling</span><div class="strike-dots" id="s2"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
-        <div class="indicator-row right"><span class="indicator-label">Penalty</span><div class="strike-dots" id="p2"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+
+    <div class="team-card" id="tc2">
+      <div class="athlete-info">
+        <div class="athlete-name" id="name2">—</div>
+        <div class="school-name" id="school2">—</div>
+      </div>
+      <div class="score-area">
+        <div class="points" id="pts2">0</div>
+        <div class="indicators">
+          <div class="indicator-group">
+            <div class="ind-label">STAL</div>
+            <div class="dots" id="s2"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          </div>
+          <div class="indicator-group">
+            <div class="ind-label">PEN</div>
+            <div class="dots" id="p2"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="divider"></div>
-  <div class="team-scores">
-    <div class="team-score-card left" id="tc1"><span class="team-name" id="tn1">Harvard</span><span class="team-pts red" id="tp1">0</span></div>
-    <div class="team-score-card right" id="tc2"><span class="team-pts blue" id="tp2">0</span><span class="team-name" id="tn2">Yale</span></div>
+
+  <div class="bottom-bar">
+    <div class="team-total">
+      <div class="total-label" id="tn1">TEAM</div>
+      <div class="total-pts" id="tp1">0</div>
+    </div>
+    <div class="timer-container">
+      <div class="timer" id="timer">5:00</div>
+    </div>
+    <div class="team-total right">
+      <div class="total-pts" id="tp2">0</div>
+      <div class="total-label" id="tn2">TEAM</div>
+    </div>
   </div>
 </div>
+
 <script>
   const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwp2W4G2mYd5cC2e9xBgJ3S_q_3jypZiCpaxI0iF5_1f5XbdLKQQyO65OGZbBScXlddcw/exec';
   const RELAY_URL = 'wss://cjl-relay.onrender.com';
