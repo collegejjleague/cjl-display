@@ -80,16 +80,14 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
     <div class="team-score-card right" id="tc2"><span class="team-pts blue" id="tp2">0</span><span class="team-name" id="tn2">Yale</span></div>
   </div>
 </div>
-  <script>
+ <script>
   const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwp2W4G2mYd5cC2e9xBgJ3S_q_3jypZiCpaxI0iF5_1f5XbdLKQQyO65OGZbBScXlddcw/exec';
   const RELAY_URL = 'wss://cjl-relay.onrender.com';
   const matId = 1;
 
   let state = {mode:'mens',matchNum:1,pts1:0,pts2:0,stalling1:0,stalling2:0,penalties1:0,penalties2:0,teamPts1:0,teamPts2:0,timerSeconds:300,timerRunning:false,name1:'—',school1:'—',color1:'#AA0000',name2:'—',school2:'—',color2:'#00356B'};
-  let timerInterval = null;
-  let lastTimerRunning = false;
-  let lastTimerSeconds = 300;
-
+  
+  // Cleaned up: Removed internal timer intervals entirely to prevent drifting ahead
   let ws = null;
   let wsConnected = false;
   let sheetPollInterval = null;
@@ -102,10 +100,7 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
   }
 
   function startSheetPolling() {
-    // ONLY allow the sheet to be touched if the WebSocket is confirmed disconnected
     if (sheetPollInterval || wsConnected) return;
-    
-    // Slow fallback interval (10s) just in case, ensuring zero accidental API spam
     sheetPollInterval = setInterval(pollSheet, 10000); 
     pollSheet(); 
   }
@@ -115,14 +110,13 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
       if (ws) {
         try { ws.close(); } catch(e) {}
       }
-      
       ws = new WebSocket(RELAY_URL);
       
       ws.onopen = function() {
         wsConnected = true;
         ws.send(JSON.stringify({ type: 'join', mat: matId }));
-        stopSheetPolling(); // Hard kill the sheet fallback immediately
-        document.getElementById('connStatus').style.color = '#3d5af1'; // Blue = Active Real-time Relay
+        stopSheetPolling(); 
+        document.getElementById('connStatus').style.color = '#3d5af1'; // Blue
       };
       
       ws.onmessage = function(e) {
@@ -134,10 +128,8 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
       
       ws.onclose = function() {
         wsConnected = false;
-        document.getElementById('connStatus').style.color = '#e24b4a'; // Red = Disconnected
-        startSheetPolling(); // Engage safety backup sheet line
-        
-        // Aggressive 3-second retry loop to force reconnection to the relay
+        document.getElementById('connStatus').style.color = '#e24b4a'; // Red
+        startSheetPolling(); 
         setTimeout(connectWS, 3000); 
       };
       
@@ -154,12 +146,12 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
   }
 
   async function pollSheet() {
-    if (wsConnected) return; // Strict block: if WebSocket is alive, do nothing
+    if (wsConnected) return; 
     try {
       const res = await fetch(SHEET_URL + '?action=getMatch&mat=' + matId, {redirect:'follow'});
       const data = JSON.parse(await res.text());
       if (data) applyState(data);
-      document.getElementById('connStatus').style.color = '#27ae60'; // Green = Fallback mode
+      document.getElementById('connStatus').style.color = '#27ae60'; // Green
     } catch(e) {}
   }
 
@@ -188,27 +180,13 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
     if (data.mode !== undefined) state.mode = data.mode;
     if (data.matchNum !== undefined) state.matchNum = parseInt(data.matchNum)||1;
     
+    // Direct Update: Immediately lock time to exactly what the control board states
     if (data.timerSeconds !== undefined) {
       state.timerSeconds = parseInt(data.timerSeconds)||300;
     }
     
-    var nr = data.timerRunning==='true'||data.timerRunning===true;
-    if (nr !== lastTimerRunning) { 
-      lastTimerRunning = nr; 
-      if (nr) startTimer(); else stopTimer(); 
-    }
     render();
   }
-
-  function startTimer() {
-    if (timerInterval) return;
-    timerInterval = setInterval(function() {
-      if (state.timerSeconds > 0) { state.timerSeconds--; renderTimer(); }
-      else { clearInterval(timerInterval); timerInterval=null; }
-    }, 1000);
-  }
-
-  function stopTimer() { clearInterval(timerInterval); timerInterval=null; }
 
   function render() {
     document.getElementById('name1').textContent = state.name1;
@@ -258,12 +236,8 @@ body.supermatch .team-scores,body.supermatch .divider{display:none;}
     return 'rgba('+r+','+g+','+b+','+a+')';
   }
 
-  // --- CLEAN WS-FIRST INITIALIZATION ---
-  // We do NOT call startSheetPolling() here.
-  // The system launches completely dark and hunts exclusively for the relay server.
   connectWS();        
 
-  // Keepalive ping to ensure the Render connection remains active
   setInterval(function() {
     if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type: 'ping' }));
   }, 25000);
