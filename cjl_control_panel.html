@@ -6,7 +6,8 @@
 <title>CJL Control Panel</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap');
-*{margin:0;padding:0;box-sizing:border-box;}\n:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--text:#ffffff;--text-dim:#8890aa;--red:#c0392b;--blue:#1a5fa8;--green:#27ae60;--orange:#e67e22;--yellow:#f1c40f;--accent:#3d5af1;}
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--text:#ffffff;--text-dim:#8890aa;--red:#c0392b;--blue:#1a5fa8;--green:#27ae60;--orange:#e67e22;--yellow:#f1c40f;--accent:#3d5af1;}
 body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;padding:12px;}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
 .topbar-left{display:flex;align-items:center;gap:16px;}
@@ -264,7 +265,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
     <div class="panel-box">
       <h3>Bout Queue <span onclick="refreshQueue()">Refresh</span></h3>
       <div class="bout-list" id="boutQueue">
-        <div class="log-entry" style="color:var(--text-dim); italic; padding:6px;">Select a mat to download active bracket queue...</div>
+        <div class="log-entry" style="color:var(--text-dim); font-style:italic; padding:6px;">Select a mat to download active bracket queue...</div>
       </div>
     </div>
 
@@ -388,24 +389,23 @@ function switchMat(val) {
   }
   matId = parseInt(val);
   logger(`Shifting interface targeting schema to Mat ${matId}.`, 'system');
-  
-  // Join the specified WebSocket messaging matrix room
   if (relayConnected && relayWs && relayWs.readyState === 1) {
     relayWs.send(JSON.stringify({ type: 'join', channel: 'mat_' + matId }));
   }
 
-  // RECOVERY TRIGGERS: Query the active record in the Sheet immediately on mat change
-  logger(`Querying active backup record for Mat ${matId} from Google Sheets API...`, 'sheets');
-  const indicators = document.getElementById('sheetsDot');
-  if (indicators) indicators.style.backgroundColor = '#f1c40f'; // Turn indicator amber/loading
+  // RECOVERY IMPLEMENTATION: Fetch from Google Sheet backup macro immediately on layout reload
+  const d = document.getElementById('sheetsDot'), t = document.getElementById('sheetsText');
+  if (d && t) {
+    d.className = 'status-dot';
+    d.style.backgroundColor = '#f1c40f'; // Syncing indicator color shift
+    t.textContent = 'Sheets: fetching...';
+  }
 
   fetch(`${SCRIPT_URL}?action=getMatActiveBout&mat=${matId}`)
     .then(r => r.json())
     .then(res => {
       if (res && res.success && res.bout) {
-        logger(`Backup record successfully recovered for Mat ${matId}! Syncing values...`, 'sheets');
-        
-        // Populate local operational objects
+        logger(`Active layout state safely reconstructed for Mat ${matId}.`, 'sheets');
         state.boutNum = parseInt(res.bout.boutNum) || state.boutNum;
         state.matchNum = res.bout.matchNum || '';
         state.mode = res.bout.mode || '';
@@ -413,8 +413,6 @@ function switchMat(val) {
         state.school1 = res.bout.school1 || '';
         state.name2 = res.bout.name2 || 'Blue Fighter';
         state.school2 = res.bout.school2 || '';
-        
-        // Recover points layout
         state.pts1 = parseInt(res.bout.pts1) || 0;
         state.pts2 = parseInt(res.bout.pts2) || 0;
         state.adv1 = parseInt(res.bout.adv1) || 0;
@@ -424,7 +422,6 @@ function switchMat(val) {
         state.teamPts1 = parseInt(res.bout.teamPts1) || 0;
         state.teamPts2 = parseInt(res.bout.teamPts2) || 0;
         
-        // Safely recover the clock down to the exact second it was last officially paused
         if (res.bout.timerSeconds !== undefined) {
           state.timerSeconds = parseInt(res.bout.timerSeconds);
         }
@@ -436,13 +433,13 @@ function switchMat(val) {
         broadcastState();
         setSheetsStatus(true);
       } else {
-        logger(`No running match backup found on Sheet for Mat ${matId}. Awaiting manual configuration.`, 'system');
+        logger(`No running match data row found on Sheet for Mat ${matId}. Fresh layout ready.`, 'system');
         setSheetsStatus(true);
       }
       refreshQueue();
     })
     .catch(e => {
-      logger(`Failed to dynamically pull backup state: ${e.message}`, 'error');
+      logger(`Automatic backup restore query failed: ${e.message}`, 'error');
       setSheetsStatus(false);
     });
 }
@@ -456,16 +453,11 @@ function formatTime(s) {
 function toggleTimer() {
   if(!matId) { alert('Please select an active mat before starting clock functions.'); return; }
   state.timerRunning = !state.timerRunning;
-  
   if (state.timerRunning) {
     logger('Match clock engaged.', 'system');
     countdownInterval = setInterval(() => {
       if (state.timerSeconds > 0) {
         state.timerSeconds--;
-        if(state.timerSeconds % 10 === 0 || state.timerSeconds <= 10) {
-          // Sync baseline properties through the relay pipeline periodically
-        }
-        // Run light broadcast to overlay channels
         broadcastState();
         document.getElementById('clockDisplay').textContent = formatTime(state.timerSeconds);
       } else {
@@ -475,14 +467,14 @@ function toggleTimer() {
         logger('Match time has expired.', 'system');
         updateUI();
         broadcastState();
-        pushToSheet(); // Auto push to sheet on match expiration
+        pushToSheet();
       }
     }, 1000);
   } else {
     logger('Match clock paused.', 'system');
     clearInterval(countdownInterval);
     countdownInterval = null;
-    pushToSheet(); // Auto backup snapshot state when clock pauses
+    pushToSheet();
   }
   updateUI();
   broadcastState();
@@ -608,13 +600,12 @@ function connectRelay() {
     relayConnected = false;
     setRelayStatus(false);
     logger('Relay structural connection severed. Initializing cycling retry sequence...', 'error');
-    setTimeout(connectRelay, 4000);
+    setTimeout(connectRelay, 3000);
   };
 }
 
 function setRelayStatus(connected) {
   const d = document.getElementById('relayDot'), t = document.getElementById('relayText');
-  if(!d || !t) return;
   if (connected) {
     d.className = 'status-dot connected';
     t.textContent = 'Relay: connected';
@@ -629,15 +620,17 @@ function setSheetsStatus(ok) {
   if(!d || !t) return;
   if (ok) {
     d.className = 'status-dot connected';
+    d.style.backgroundColor = '';
     t.textContent = 'Sheets: checked';
   } else {
     d.className = 'status-dot error';
+    d.style.backgroundColor = '';
     t.textContent = 'Sheets: error';
   }
 }
 
 function broadcastState() {
-  if (!relayConnected || !relayWs || relayWs.readyState !== 1 || !matId) return;
+  if (!relayConnected || !relayWs || relayWs.readyState !== 1) return;
   const msg = {
     type: 'state', mat: matId,
     name1:state.name1, school1:state.school1, color1:state.color1,
@@ -645,8 +638,7 @@ function broadcastState() {
     pts1:state.pts1, pts2:state.pts2,
     teamPts1:state.teamPts1, teamPts2:state.teamPts2,
     stalling1:state.stalling1, stalling2:state.stalling2,
-    penalties1:state.penalties1, penalties2:state.penalties2, // maps to state local props
-    adv1:state.adv1, adv2:state.adv2, pen1:state.pen1, pen2:state.pen2,
+    penalties1:state.penalties1, penalties2:state.penalties2,
     timerSeconds:state.timerSeconds, timerRunning:state.timerRunning,
     mode:state.mode, matchNum:state.matchNum, boutNum:state.boutNum
   };
@@ -661,7 +653,6 @@ function broadcastBracket() {
 function loadFromSheet() {
   if(!matId) { alert('Please choose a mat matrix designation first.'); return; }
   logger('Forcing database synchronization lookup down to active spreadsheet tab...', 'sheets');
-  
   fetch(`${SCRIPT_URL}?action=getMatActiveBout&mat=${matId}`)
     .then(r => r.json())
     .then(res => {
@@ -688,7 +679,6 @@ function loadFromSheet() {
         
         state.timerRunning = false;
         if(countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
-        
         logger('Spreadsheet records mapped successfully to panel layout fields.', 'sheets');
         updateUI();
         broadcastState();
@@ -706,7 +696,6 @@ function loadFromSheet() {
 function pushToSheet() {
   if(!matId) return;
   if(!state.boutNum) { logger('Save skipped: Missing specific row targeting validation.', 'error'); return; }
-  
   const bodyData = {
     action: 'updateMatScore',
     boutNum: state.boutNum,
@@ -715,7 +704,6 @@ function pushToSheet() {
     pts2: state.pts2, adv2: state.adv2, pen2: state.pen2, teamPts2: state.teamPts2,
     timerSeconds: state.timerSeconds
   };
-
   fetch(SCRIPT_URL, {
     method: 'POST',
     mode: 'no-cors',
@@ -736,14 +724,13 @@ function refreshQueue() {
   if(!matId) return;
   const qBox = document.getElementById('boutQueue');
   if(!qBox) return;
-  
   fetch(`${SCRIPT_URL}?action=getBoutQueue&mat=${matId}`)
     .then(r => r.json())
     .then(res => {
       if(res && res.success && res.queue) {
         qBox.innerHTML = '';
         if(res.queue.length === 0) {
-          qBox.innerHTML = '<div class="log-entry" style="color:var(--text-dim); padding:6px; italic;">No remaining bouts allocated to this sector.</div>';
+          qBox.innerHTML = '<div class="log-entry" style="color:var(--text-dim); padding:6px; font-style:italic;">No remaining bouts allocated to this sector.</div>';
           return;
         }
         res.queue.forEach(b => {
@@ -769,7 +756,6 @@ function refreshQueue() {
 
 function loadSpecificBout(b) {
   if(!confirm(`Transition scoring frame to Match #${b.matchNum} (Row ${b.boutNum})?`)) return;
-  
   state.boutNum = parseInt(b.boutNum);
   state.matchNum = b.matchNum || '';
   state.mode = b.mode || '';
@@ -777,27 +763,21 @@ function loadSpecificBout(b) {
   state.school1 = b.school1 || '';
   state.name2 = b.name2 || 'Blue Fighter';
   state.school2 = b.school2 || '';
-  
   state.pts1 = 0; state.pts2 = 0;
   state.adv1 = 0; state.adv2 = 0;
   state.pen1 = 0; state.pen2 = 0;
   state.teamPts1 = 0; state.teamPts2 = 0;
   state.timerSeconds = 300;
   state.timerRunning = false;
-  
   if(countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
-  
   logger(`Interface targeted to Row ${state.boutNum}. Syncing initial state down to spreadsheet context.`, 'system');
   updateUI();
   broadcastState();
-  
-  // Save initial layout row pointers back out to spreadsheet mapping spaces
   const bodyData = {
     action: 'setActiveBout',
     mat: matId,
     boutNum: state.boutNum
   };
-  
   fetch(SCRIPT_URL, {
     method: 'POST',
     mode: 'no-cors',
@@ -811,19 +791,15 @@ function loadSpecificBout(b) {
 function submitFinalResults() {
   if(!matId) return;
   if(!state.boutNum) return;
-  
   const wIdx = document.getElementById('winnerSelect').value;
   const method = document.getElementById('methodSelect').value;
   const details = document.getElementById('subTypeInput').value;
-  
   if(!wIdx || !method) {
     alert('Please specify both a winning athlete assignment and victory method parameters before archiving operations.');
     return;
   }
-  
   const winnerName = (wIdx === "1") ? state.name1 : state.name2;
   if(!confirm(`Archive complete historical snapshot records? Winner: ${winnerName} via ${method}.`)) return;
-  
   const bodyData = {
     action: 'submitResults',
     boutNum: state.boutNum,
@@ -834,9 +810,7 @@ function submitFinalResults() {
     method: method,
     details: details
   };
-
   logger('Transmitting finalized outcome transaction payload to archive database ledger...', 'sheets');
-  
   fetch(SCRIPT_URL, {
     method: 'POST',
     mode: 'no-cors',
@@ -845,15 +819,10 @@ function submitFinalResults() {
   })
   .then(() => {
     logger('Outcome snapshot archived cleanly. Overlays updating.', 'sheets');
-    // Clear outcome inputs
     document.getElementById('winnerSelect').value = '';
     document.getElementById('methodSelect').value = '';
     document.getElementById('subTypeInput').value = '';
-    
-    // Broadcast clean bracket updates out across overlay spaces
     broadcastBracket();
-    
-    // Auto pull the next match down to this mat
     setTimeout(() => {
       switchMat(matId);
     }, 1500);
