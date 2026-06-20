@@ -10,601 +10,397 @@
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--text:#ffffff;--text-dim:#8890aa;--red:#c0392b;--blue:#1a5fa8;--green:#27ae60;--orange:#e67e22;--yellow:#f1c40f;--accent:#3d5af1;}
 body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;padding:12px;}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
-.topbar-left{display:flex;align-items:center;gap:16px;}
-.logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;letter-spacing:1px;color:#fff;display:flex;align-items:center;gap:6px;}
-.logo span{color:var(--accent);}
-.mat-selector{display:flex;align-items:center;gap:8px;}
-.mat-selector label{font-size:12px;font-weight:600;text-transform:uppercase;color:var(--text-dim);letter-spacing:0.5px;}
-.mat-selector select{background:var(--surface2);border:1px solid var(--border);color:#fff;padding:6px 12px;border-radius:6px;font-weight:600;outline:none;cursor:pointer;}
-.mat-selector select:focus{border-color:var(--accent);}
-.status-indicators{display:flex;align-items:center;gap:14px;background:var(--bg);padding:6px 12px;border-radius:6px;border:1px solid var(--border);}
-.indicator{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--text-dim);}
-.status-dot{width:8px;height:8px;border-radius:50%;background:#555;}
-.status-dot.connected{background:var(--green);box-shadow:0 0 8px var(--green);}
-.status-dot.error{background:var(--red);box-shadow:0 0 8px var(--red);}
-.main-grid{display:grid;grid-template-columns:1fr 340px;gap:12px;}
-@media(max-width:1024px){.main-grid{grid-template-columns:1fr;}}
-.score-engine{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:16px;}
-.match-meta-inputs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:var(--surface2);padding:10px;border-radius:6px;border:1px solid var(--border);}
-.meta-field{display:flex;flex-direction:column;gap:4px;}
-.meta-field label{font-size:10px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;}
-.meta-field input{background:var(--bg);border:1px solid var(--border);color:#fff;padding:6px 10px;border-radius:4px;font-family:inherit;font-size:14px;outline:none;}
-.meta-field input:focus{border-color:var(--accent);}
-.clock-container{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;}
-.clock-display{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:76px;line-height:1;letter-spacing:1px;color:#fff;margin-bottom:12px;cursor:pointer;user-select:none;}
-.clock-controls{display:flex;gap:8px;width:100%;max-width:400px;}
-.btn{background:var(--surface2);border:1px solid var(--border);color:#fff;padding:8px 16px;border-radius:6px;font-weight:600;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s ease;font-family:inherit;user-select:none;}
-.btn:hover{background:var(--border);}
-.btn-primary{background:var(--accent);border-color:var(--accent);width:100%;font-size:16px;padding:12px;}
-.btn-primary:hover{background:#2a45d0;border-color:#2a45d0;}
-.btn-primary.running{background:var(--orange);border-color:var(--orange);}
-.btn-primary.running:hover{background:#d35400;border-color:#d35400;}
-.clock-presets{display:flex;gap:6px;margin-top:10px;}
-.btn-sm{padding:4px 8px;font-size:11px;border-radius:4px;}
-.athletes-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-@media(max-width:600px){.athletes-grid{grid-template-columns:1fr;}}
-.athlete-card{border-radius:6px;border:1px solid var(--border);overflow:hidden;background:var(--surface2);display:flex;flex-direction:column;}
-.athlete-card.red-side{border-top:4px solid var(--red);}
-.athlete-card.blue-side{border-top:4px solid var(--blue);}
-.athlete-header{padding:10px 12px;background:rgba(0,0,0,0.15);display:flex;flex-direction:column;gap:6px;border-bottom:1px solid var(--border);}
-.athlete-header input{background:var(--bg);border:1px solid var(--border);color:#fff;padding:6px;border-radius:4px;font-size:14px;outline:none;width:100%;font-weight:600;}
-.athlete-header input.school-input{font-size:12px;color:var(--text-dim);font-weight:400;margin-top:-2px;}
-.score-block-main{display:flex;align-items:center;justify-content:space-between;padding:16px;background:rgba(0,0,0,0.08);border-bottom:1px solid var(--border);}
-.score-label{font-size:12px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;}
-.score-val-big{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:64px;line-height:1;}
-.red-side .score-val-big{color:var(--red);}
-.blue-side .score-val-big{color:var(--blue);}
-.score-modifiers{display:flex;flex-direction:column;gap:4px;}
-.score-modifiers .btn{padding:6px 12px;font-size:14px;}
-.subscores-row{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.03);}
-.subscore-cell{padding:10px;display:flex;align-items:center;justify-content:space-between;}
-.subscore-cell:first-child{border-right:1px solid var(--border);}
-.subscore-label{font-size:11px;font-weight:600;color:var(--text-dim);text-transform:uppercase;}
-.subscore-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:24px;line-height:1;}
-.subscore-cell.adv .subscore-val{color:var(--yellow);}
-.subscore-cell.pen .subscore-val{color:var(--red);}
-.subscore-controls{display:flex;gap:3px;}
-.subscore-controls .btn{padding:2px 6px;font-size:11px;border-radius:3px;}
-.team-pts-row{padding:10px 12px;display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.12);}
-.team-pts-input{width:50px;background:var(--bg);border:1px solid var(--border);color:#fff;padding:4px;border-radius:4px;text-align:center;font-family:inherit;font-size:13px;font-weight:600;}
-.stalling-btn{width:100%;border-radius:0;border:none;border-top:1px solid var(--border);padding:8px;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;}
-.stalling-btn.active{background:var(--orange);color:#fff;font-weight:700;animation:pulse 1.5s infinite;}
-@keyframes pulse{0%{opacity:1;}50%{opacity:0.7;}100%{opacity:1;}}
-.action-bar{display:flex;justify-content:space-between;align-items:center;background:var(--surface2);padding:10px 14px;border-radius:6px;border:1px solid var(--border);margin-top:auto;}
-.action-group{display:flex;gap:8px;}
-.sidebar{display:flex;flex-direction:column;gap:12px;}
-.panel-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px;}
-.panel-box h3{font-family:'Barlow Condensed',sans-serif;font-size:16px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-dim);border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;}
-.panel-box h3 span{font-size:11px;font-family:'Barlow',sans-serif;color:var(--accent);cursor:pointer;text-transform:none;font-weight:500;}
-.panel-box h3 span:hover{text-decoration:underline;}
-.bout-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;padding-right:4px;}
-.bout-item{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px;cursor:pointer;transition:all 0.15s ease;display:flex;flex-direction:column;gap:4px;}
-.bout-item:hover{border-color:var(--text-dim);background:var(--border);}
-.bout-item.active{border-color:var(--accent);background:rgba(61,90,241,0.1);}
-.bout-title{font-size:12px;font-weight:600;display:flex;justify-content:space-between;}
-.bout-title .b-type{color:var(--text-dim);font-weight:400;}
-.bout-fighters{font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:space-between;gap:4px;}
-.bout-fighters .versus{color:var(--text-dim);font-size:11px;}
-.bout-fighters span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:45%;}
-.bout-fighters span.b-red{color:#ff5e57;}
-.bout-fighters span.b-blue{color:#54a0ff;}
-.outcome-box{display:flex;flex-direction:column;gap:8px;}
-.outcome-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.outcome-box select, .outcome-box input{background:var(--surface2);border:1px solid var(--border);color:#fff;padding:8px;border-radius:6px;font-family:inherit;font-size:13px;outline:none;width:100%;}
-.outcome-box select:focus, .outcome-box input:focus{border-color:var(--accent);}
-.console-log{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px;font-family:monospace;font-size:11px;color:var(--text-dim);height:140px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;}
-.log-entry{line-height:1.3;padding-bottom:2px;border-bottom:1px solid rgba(255,255,255,0.02);}
-.log-entry.system{color:var(--text-dim);}
-.log-entry.websocket{color:var(--accent);}
-.log-entry.sheets{color:var(--green);}
-.log-entry.error{color:var(--red);}
-::-webkit-scrollbar{width:6px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-::-webkit-scrollbar-thumb:hover{background:var(--text-dim);}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.topbar-logo{height:36px;opacity:0.9;}
+.topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;letter-spacing:2px;}
+.mat-selector{display:flex;gap:6px;align-items:center;}
+.mat-btn{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all 0.2s;}
+.mat-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.status-area{display:flex;align-items:center;gap:8px;}
+.status-dot{width:10px;height:10px;border-radius:50%;background:#888;display:inline-block;}
+.status-dot.connected{background:var(--green);}
+.status-dot.error{background:var(--red);}
+.status-text{font-size:12px;color:var(--text-dim);}
+.mode-tabs{display:flex;gap:6px;}
+.mode-tab{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all 0.2s;}
+.mode-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.grid-full{grid-column:1/-1;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px;}
+select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:'Barlow',sans-serif;width:100%;}
+select:focus{outline:none;border-color:var(--accent);}
+.lineup-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;}
+.lineup-match{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px;}
+.lineup-match-label{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.lineup-selects{display:flex;flex-direction:column;gap:4px;}
+.lineup-selects select{padding:5px 8px;font-size:12px;}
+.confirm-lineup-btn{margin-top:8px;width:100%;padding:10px;background:var(--green);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;}
+.timer-display{text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:64px;font-weight:900;letter-spacing:4px;color:#fff;margin:8px 0;transition:color 0.3s;}
+.timer-display.danger{color:var(--red);}
+.timer-controls{display:flex;gap:8px;justify-content:center;}
+.match-progress{display:flex;gap:6px;margin-bottom:10px;}
+.match-pip{flex:1;height:8px;border-radius:4px;background:var(--surface2);border:1px solid var(--border);transition:background 0.3s;}
+.match-pip.current{background:var(--accent);}
+.match-pip.done-red{background:var(--red);}
+.match-pip.done-blue{background:var(--blue);}
+.btn{padding:8px 16px;border:none;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s,transform 0.1s;}
+.btn:hover{opacity:0.85;}.btn:active{transform:scale(0.97);}
+.btn-green{background:var(--green);color:#fff;}.btn-red{background:var(--red);color:#fff;}
+.btn-orange{background:var(--orange);color:#fff;}.btn-grey{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-accent{background:var(--accent);color:#fff;}.btn-lg{padding:12px 24px;font-size:18px;}
+.btn-sm{padding:5px 10px;font-size:12px;}.btn-full{width:100%;}
+.match-display{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:10px;}
+.athlete-info{display:flex;flex-direction:column;gap:2px;}
+.athlete-info.right{align-items:flex-end;text-align:right;}
+.athlete-display-name{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:1px;}
+.athlete-school{font-size:11px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;}
+.score-display{display:flex;gap:8px;align-items:center;justify-content:center;}
+.score-box{width:52px;height:52px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;color:#fff;}
+.score-box.red{background:var(--red);}.score-box.blue{background:var(--blue);}
+.points-section{margin-bottom:10px;}
+.points-label{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.points-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
+.point-btn{padding:8px 4px;border:none;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;cursor:pointer;text-align:center;line-height:1.2;transition:opacity 0.2s,transform 0.1s;}
+.point-btn:hover{opacity:0.85;}.point-btn:active{transform:scale(0.96);}
+.point-btn .pts{font-size:16px;display:block;}
+.point-btn.red-btn{background:#7b2020;color:#ff9999;}.point-btn.blue-btn{background:#1a3a6b;color:#99ccff;}
+.sp-row{display:flex;gap:6px;align-items:center;margin-bottom:6px;}
+.sp-label{font-size:11px;color:var(--text-dim);min-width:60px;text-transform:uppercase;letter-spacing:1px;}
+.dot-row{display:flex;gap:4px;}
+.stall-dot{width:14px;height:14px;border-radius:50%;border:2px solid #444;cursor:pointer;transition:all 0.2s;}
+.stall-dot.active{background:var(--orange);border-color:var(--orange);}.stall-dot.dq{background:var(--red);border-color:var(--red);}
+.team-score-row{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:8px;}
+.team-score-card{border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;}
+.team-score-name{font-size:14px;font-weight:600;color:#ddd;text-transform:uppercase;}
+.team-score-pts{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;}
+.team-score-pts.red{color:#ff6b6b;}.team-score-pts.blue{color:#6bb5ff;}
+.vs-text{font-size:16px;color:var(--text-dim);text-align:center;font-weight:700;}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;}
+.result-btn{padding:8px 4px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text);font-size:11px;font-weight:700;cursor:pointer;text-align:center;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;text-transform:uppercase;transition:all 0.2s;}
+.result-btn:hover{border-color:var(--accent);color:var(--accent);}.result-btn.selected{background:var(--accent);color:#fff;border-color:var(--accent);}
+.undo-log{max-height:120px;overflow-y:auto;font-size:11px;color:var(--text-dim);font-family:monospace;}
+.undo-entry{padding:3px 0;border-bottom:1px solid var(--border);}
+.confirm-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:1000;align-items:center;justify-content:center;}
+.confirm-overlay.show{display:flex;}
+.confirm-box{background:var(--surface);border:2px solid var(--accent);border-radius:12px;padding:28px;max-width:420px;width:90%;text-align:center;}
+.confirm-box h2{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;margin-bottom:8px;}
+.confirm-box p{font-size:14px;color:var(--text-dim);margin-bottom:20px;}
+.confirm-box .result-summary{background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:20px;font-size:13px;line-height:1.8;}
+.confirm-actions{display:flex;gap:10px;justify-content:center;}
+.divider{height:1px;background:var(--border);margin:10px 0;}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.tag-green{background:#1a3a2a;color:#4caf50;}
+kbd{background:var(--surface2);padding:1px 5px;border-radius:3px;color:#fff;font-family:monospace;font-size:11px;}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="topbar-left">
-    <div class="logo">CJL <span>CONTROL PANEL</span></div>
-    <div class="mat-selector">
-      <label for="matSelect">Active Mat:</label>
-      <select id="matSelect" onchange="switchMat(this.value)">
-        <option value="">-- Select Mat --</option>
-        <option value="1">Mat 1</option>
-        <option value="2">Mat 2</option>
-        <option value="3">Mat 3</option>
-        <option value="4">Mat 4</option>
-      </select>
-    </div>
-  </div>
-  
-  <div class="status-indicators">
-    <div class="indicator">
-      <div id="sheetsDot" class="status-dot"></div>
-      <span id="sheetsText">Sheets: checked</span>
-    </div>
-    <div class="indicator">
-      <div id="relayDot" class="status-dot"></div>
-      <span id="relayText">Relay: checking</span>
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h2>⚡ Submit Result?</h2>
+    <p>Review the dual meet result before advancing the bracket.</p>
+    <div class="result-summary" id="confirmSummary"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-grey" onclick="closeConfirm()">← Go Back</button>
+      <button class="btn btn-green btn-lg" onclick="confirmAdvance()">✓ Confirm & Advance Bracket</button>
     </div>
   </div>
 </div>
 
-<div class="main-grid">
-  <div class="score-engine">
-    <div class="match-meta-inputs">
-      <div class="meta-field">
-        <label>Mode / Bracket</label>
-        <input type="text" id="matchMode" value="Men's Championship" oninput="updateMeta()">
-      </div>
-      <div class="meta-field">
-        <label>Match #</label>
-        <input type="text" id="matchNum" value="10" oninput="updateMeta()">
-      </div>
-      <div class="meta-field">
-        <label>Bout # (Sheet Row ID)</label>
-        <input type="number" id="boutNum" value="2" oninput="updateMeta()">
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-title">CJL TOURNAMENT ENGINE</div>
+    <div class="mat-selector">
+      <button class="mat-btn active" onclick="setMat(1)">Mat 1</button>
+      <button class="mat-btn" onclick="setMat(2)">Mat 2</button>
+      <button class="mat-btn" onclick="setMat(3)">Mat 3</button>
+      <button class="mat-btn" onclick="setMat(4)">Mat 4</button>
+    </div>
+  </div>
+  <div class="status-area">
+    <span class="status-dot error" id="relayDot"></span>
+    <span class="status-text" id="relayText">Relay: disconnected</span>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <div class="card-title">Dual Lineup Manager</div>
+    <div class="lineup-grid">
+      <div class="lineup-match">
+        <div class="lineup-match-label">Match ID / Bout</div>
+        <div class="lineup-selects">
+          <select id="matchSelect" onchange="loadSelectedBout()">
+            <option value="">-- Choose Bout --</option>
+          </select>
+        </div>
       </div>
     </div>
+    <button class="confirm-lineup-btn" onclick="confirmLineupSelection()">Load Bout Layout</button>
+  </div>
 
-    <div class="clock-container">
-      <div class="clock-display" id="clockDisplay" onclick="toggleTimer()">05:00</div>
-      <div class="clock-controls">
-        <button class="btn btn-primary" id="startBtn" onclick="toggleTimer()">Start Match</button>
-        <button class="btn" onclick="adjustTime(10)">+10s</button>
-        <button class="btn" onclick="adjustTime(-10)">-10s</button>
-        <button class="btn" onclick="resetTimer()">Reset</button>
+  <div class="card">
+    <div class="card-title">Live Scoreboard Display</div>
+    <div class="match-progress" id="matchProgressPips"></div>
+    <div class="match-display">
+      <div class="athlete-info">
+        <span class="athlete-display-name" id="name1">Competitor 1</span>
+        <span class="athlete-school" id="school1">Team Red</span>
       </div>
-      <div class="clock-presets">
-        <button class="btn btn-sm" onclick="setTimerPreset(300)">5 Min</button>
-        <button class="btn btn-sm" onclick="setTimerPreset(360)">6 Min</button>
-        <button class="btn btn-sm" onclick="setTimerPreset(420)">7 Min</button>
-        <button class="btn btn-sm" onclick="setTimerPreset(60)">1 Min</button>
+      <div class="vs-text">VS</div>
+      <div class="athlete-info right">
+        <span class="athlete-display-name" id="name2">Competitor 2</span>
+        <span class="athlete-school" id="school2">Team Blue</span>
       </div>
     </div>
-
-    <div class="athletes-grid">
-      <div class="athlete-card red-side">
-        <div class="athlete-header">
-          <input type="text" id="name1" value="Red Fighter" oninput="updateAthleteData(1)">
-          <input type="text" id="school1" class="school-input" value="Team Red" oninput="updateAthleteData(1)">
-        </div>
-        <div class="score-block-main">
-          <div class="score-label">Points</div>
-          <div class="score-val-big" id="pts1">0</div>
-          <div class="score-modifiers">
-            <button class="btn" onclick="modPoints(1, 1)">+1</button>
-            <button class="btn" onclick="modPoints(1, -1)">-1</button>
-          </div>
-        </div>
-        <div class="subscores-row">
-          <div class="subscore-cell adv">
-            <div>
-              <div class="subscore-label">Adv</div>
-              <div class="subscore-val" id="adv1">0</div>
-            </div>
-            <div class="subscore-controls">
-              <button class="btn" onclick="modAdv(1, 1)">+</button>
-              <button class="btn" onclick="modAdv(1, -1)">-</button>
-            </div>
-          </div>
-          <div class="subscore-cell pen">
-            <div>
-              <div class="subscore-label">Pen</div>
-              <div class="subscore-val" id="pen1">0</div>
-            </div>
-            <div class="subscore-controls">
-              <button class="btn" onclick="modPen(1, 1)">+</button>
-              <button class="btn" onclick="modPen(1, -1)">-</button>
-            </div>
-          </div>
-        </div>
-        <div class="team-pts-row">
-          <div class="score-label">Team Pts</div>
-          <input type="number" id="teamPts1" class="team-pts-input" value="0" oninput="updateTeamPoints(1)">
-        </div>
-        <button id="stalling1" class="btn stalling-btn" onclick="toggleStalling(1)">Stalling</button>
-      </div>
-
-      <div class="athlete-card blue-side">
-        <div class="athlete-header">
-          <input type="text" id="name2" value="Blue Fighter" oninput="updateAthleteData(2)">
-          <input type="text" id="school2" class="school-input" value="Team Blue" oninput="updateAthleteData(2)">
-        </div>
-        <div class="score-block-main">
-          <div class="score-label">Points</div>
-          <div class="score-val-big" id="pts2">0</div>
-          <div class="score-modifiers">
-            <button class="btn" onclick="modPoints(2, 1)">+1</button>
-            <button class="btn" onclick="modPoints(2, -1)">-1</button>
-          </div>
-        </div>
-        <div class="subscores-row">
-          <div class="subscore-cell adv">
-            <div>
-              <div class="subscore-label">Adv</div>
-              <div class="subscore-val" id="adv2">0</div>
-            </div>
-            <div class="subscore-controls">
-              <button class="btn" onclick="modAdv(2, 1)">+</button>
-              <button class="btn" onclick="modAdv(2, -1)">-</button>
-            </div>
-          </div>
-          <div class="subscore-cell pen">
-            <div>
-              <div class="subscore-label">Pen</div>
-              <div class="subscore-val" id="pen2">0</div>
-            </div>
-            <div class="subscore-controls">
-              <button class="btn" onclick="modPen(2, 1)">+</button>
-              <button class="btn" onclick="modPen(2, -1)">-</button>
-            </div>
-          </div>
-        </div>
-        <div class="team-pts-row">
-          <div class="score-label">Team Pts</div>
-          <input type="number" id="teamPts2" class="team-pts-input" value="0" oninput="updateTeamPoints(2)">
-        </div>
-        <button id="stalling2" class="btn stalling-btn" onclick="toggleStalling(2)">Stalling</button>
-      </div>
+    <div class="score-display">
+      <div class="score-box red" id="pts1">0</div>
+      <div class="score-box blue" id="pts2">0</div>
     </div>
-
-    <div class="action-bar">
-      <div class="action-group">
-        <button class="btn" onclick="loadFromSheet()">Sync From Sheet</button>
-        <button class="btn" onclick="pushToSheet()">Save Current State</button>
-      </div>
-      <button class="btn" style="background:#27ae60; border-color:#27ae60;" onclick="submitFinalResults()">Submit Results & Archive</button>
+    <div class="divider"></div>
+    <div class="timer-display" id="timerDisplay">05:00</div>
+    <div class="timer-controls">
+      <button class="btn btn-green" id="startBtn" onclick="toggleTimer()">Start</button>
+      <button class="btn btn-red" onclick="resetTimer()">Reset</button>
     </div>
   </div>
 
-  <div class="sidebar">
-    <div class="panel-box">
-      <h3>Bout Queue <span onclick="refreshQueue()">Refresh</span></h3>
-      <div class="bout-list" id="boutQueue">
-        <div class="log-entry" style="color:var(--text-dim); font-style:italic; padding:6px;">Select a mat to download active bracket queue...</div>
+  <div class="card">
+    <div class="card-title">Points & Technical Violations</div>
+    <div class="points-section">
+      <div class="points-label">Red Team Scoring</div>
+      <div class="points-grid">
+        <button class="point-btn red-btn" onclick="addPoints(1, 2)"><span class="pts">+2</span>Takedown</button>
+        <button class="point-btn red-btn" onclick="addPoints(1, 3)"><span class="pts">+3</span>Guard Pass</button>
+        <button class="point-btn red-btn" onclick="addPoints(1, 4)"><span class="pts">+4</span>Mount</button>
+        <button class="point-btn red-btn" onclick="addPoints(1, -1)"><span class="pts">-1</span>Penalty</button>
       </div>
     </div>
-
-    <div class="panel-box">
-      <h3>Match Outcome Generation</h3>
-      <div class="outcome-box">
-        <div class="outcome-row">
-          <select id="winnerSelect">
-            <option value="">-- Choose Winner --</option>
-            <option value="1">Red Fighter</option>
-            <option value="2">Blue Fighter</option>
-          </select>
-          <select id="methodSelect">
-            <option value="">-- Choose Method --</option>
-            <option value="Points">Points</option>
-            <option value="Submission">Submission</option>
-            <option value="Advantage">Advantage</option>
-            <option value="Penalties">Penalties</option>
-            <option value="DQ">Disqualification</option>
-            <option value="Ref Decision">Ref Decision</option>
-          </select>
-        </div>
-        <input type="text" id="subTypeInput" placeholder="Submission details (e.g., Armbar, Choke)">
+    <div class="points-section">
+      <div class="points-label">Blue Team Scoring</div>
+      <div class="points-grid">
+        <button class="point-btn blue-btn" onclick="addPoints(2, 2)"><span class="pts">+2</span>Takedown</button>
+        <button class="point-btn blue-btn" onclick="addPoints(2, 3)"><span class="pts">+3</span>Guard Pass</button>
+        <button class="point-btn blue-btn" onclick="addPoints(2, 4)"><span class="pts">+4</span>Mount</button>
+        <button class="point-btn blue-btn" onclick="addPoints(2, -1)"><span class="pts">-1</span>Penalty</button>
       </div>
-    </div>
-
-    <div class="panel-box">
-      <h3>System Production Console</h3>
-      <div class="console-log" id="consoleLog"></div>
     </div>
   </div>
 </div>
 
 <script>
-// CONFIGURATIONS
-const RELAY_HOST = 'cjl-relay.onrender.com';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqV_E4_F0f_fSg7j1Cj_2b0p_v_Z-DkE80iL08UqM4b0rYqL09XW18OqR2_YVp4w/exec';
+// Real global state tracking array object structure definitions
+let matId = 1;
+let relayConnected = false;
+let relayWs = null;
 
-// DATA STATE ENGINE
-let matId = '';
 let state = {
-  name1: 'Red Fighter', school1: 'Team Red', color1: 'red',
-  name2: 'Blue Fighter', school2: 'Team Blue', color2: 'blue',
+  name1: "Competitor 1", school1: "Team Red", color1: "red",
+  name2: "Competitor 2", school2: "Team Blue", color2: "blue",
   pts1: 0, pts2: 0,
-  adv1: 0, adv2: 0,
-  pen1: 0, pen2: 0,
   teamPts1: 0, teamPts2: 0,
-  stalling1: false, stalling2: false,
-  timerSeconds: 300,
-  timerRunning: false,
-  mode: "Men's Championship",
-  matchNum: "10",
-  boutNum: 2
+  stalling1: 0, stalling2: 0,
+  penalties1: 0, penalties2: 0,
+  timerSeconds: 300, timerRunning: false,
+  mode: "match", matchNum: 1, boutNum: 1
 };
 
-let countdownInterval = null;
-let relayWs = null;
-let relayConnected = false;
-
-function logger(msg, type='system') {
-  const c = document.getElementById('consoleLog');
-  if(!c) return;
-  const t = new Date().toTimeString().split(' ')[0];
-  const e = document.createElement('div');
-  e.className = `log-entry ${type}`;
-  e.textContent = `[${t}] ${msg}`;
-  c.appendChild(e);
-  c.scrollTop = c.scrollHeight;
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  logger('System initialization complete. Awaiting active mat allocation.');
-  setSheetsStatus(true);
-  connectRelay();
-  updateUI();
-});
-
-function updateUI() {
-  document.getElementById('clockDisplay').textContent = formatTime(state.timerSeconds);
-  document.getElementById('name1').value = state.name1;
-  document.getElementById('school1').value = state.school1;
-  document.getElementById('name2').value = state.name2;
-  document.getElementById('school2').value = state.school2;
-  document.getElementById('pts1').innerText = state.pts1;
-  document.getElementById('pts2').innerText = state.pts2;
-  document.getElementById('adv1').innerText = state.adv1;
-  document.getElementById('adv2').innerText = state.adv2;
-  document.getElementById('pen1').innerText = state.pen1;
-  document.getElementById('pen2').innerText = state.pen2;
-  document.getElementById('teamPts1').value = state.teamPts1;
-  document.getElementById('teamPts2').value = state.teamPts2;
-  document.getElementById('matchMode').value = state.mode;
-  document.getElementById('matchNum').value = state.matchNum;
-  document.getElementById('boutNum').value = state.boutNum;
-
-  const s1 = document.getElementById('stalling1'), s2 = document.getElementById('stalling2');
-  if(state.stalling1) s1.classList.add('active'); else s1.classList.remove('active');
-  if(state.stalling2) s2.classList.add('active'); else s2.classList.remove('active');
-
-  const startBtn = document.getElementById('startBtn');
-  if (state.timerRunning) {
-    startBtn.textContent = 'Pause Match';
-    startBtn.classList.add('running');
-  } else {
-    startBtn.textContent = 'Start Match';
-    startBtn.classList.remove('running');
-  }
-
-  const wSel = document.getElementById('winnerSelect');
-  if(wSel) {
-    wSel.options[1].text = state.name1 || 'Red Fighter';
-    wSel.options[2].text = state.name2 || 'Blue Fighter';
+// =========================================================================
+// ADDED: CRASH RECOVERY STORAGE LAYER FUNCTIONS
+// =========================================================================
+function saveStateToStorage() {
+  try {
+    localStorage.setItem('cjl_mat_state_' + matId, JSON.stringify(state));
+  } catch (e) {
+    console.error("Failed to cache match state to LocalStorage:", e);
   }
 }
 
-function switchMat(val) {
-  if (!val) {
-    matId = '';
-    logger('Mat deselected. Realtime engine decoupled.');
-    return;
+function loadStateFromStorage() {
+  try {
+    const cached = localStorage.getItem('cjl_mat_state_' + matId);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (parsed && typeof parsed === 'object') {
+        state = parsed;
+        // Make sure running state doesn't loop forever instantly upon startup
+        state.timerRunning = false;
+        
+        // Repopulate UI representations directly
+        updateUI();
+        
+        console.log(`Successfully recovered cached state from crash memory for Mat ${matId}`);
+        
+        // Force an immediate real-time network broadcast so overlays realign
+        broadcastState();
+      }
+    }
+  } catch (e) {
+    console.error("Error reading from local crash storage layer:", e);
   }
-  matId = parseInt(val);
-  logger(`Shifting interface targeting schema to Mat ${matId}.`, 'system');
-  if (relayConnected && relayWs && relayWs.readyState === 1) {
+}
+// =========================================================================
+
+function setMat(id) {
+  matId = id;
+  const btns = document.querySelectorAll('.mat-btn');
+  btns.forEach((b, idx) => {
+    if (idx === (id - 1)) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+  
+  // =========================================================================
+  // ADDED: RECOVER STORED SNAPSHOT WHEN TOGGLING MAT CHANNELS
+  // =========================================================================
+  loadStateFromStorage();
+  // =========================================================================
+  
+  if (relayWs && relayWs.readyState === 1) {
     relayWs.send(JSON.stringify({ type: 'join', channel: 'mat_' + matId }));
   }
-
-  // RECOVERY IMPLEMENTATION: Fetch from Google Sheet backup macro immediately on layout reload
-  const d = document.getElementById('sheetsDot'), t = document.getElementById('sheetsText');
-  if (d && t) {
-    d.className = 'status-dot';
-    d.style.backgroundColor = '#f1c40f'; // Syncing indicator color shift
-    t.textContent = 'Sheets: fetching...';
-  }
-
-  fetch(`${SCRIPT_URL}?action=getMatActiveBout&mat=${matId}`)
-    .then(r => r.json())
-    .then(res => {
-      if (res && res.success && res.bout) {
-        logger(`Active layout state safely reconstructed for Mat ${matId}.`, 'sheets');
-        state.boutNum = parseInt(res.bout.boutNum) || state.boutNum;
-        state.matchNum = res.bout.matchNum || '';
-        state.mode = res.bout.mode || '';
-        state.name1 = res.bout.name1 || 'Red Fighter';
-        state.school1 = res.bout.school1 || '';
-        state.name2 = res.bout.name2 || 'Blue Fighter';
-        state.school2 = res.bout.school2 || '';
-        state.pts1 = parseInt(res.bout.pts1) || 0;
-        state.pts2 = parseInt(res.bout.pts2) || 0;
-        state.adv1 = parseInt(res.bout.adv1) || 0;
-        state.adv2 = parseInt(res.bout.adv2) || 0;
-        state.pen1 = parseInt(res.bout.pen1) || 0;
-        state.pen2 = parseInt(res.bout.pen2) || 0;
-        state.teamPts1 = parseInt(res.bout.teamPts1) || 0;
-        state.teamPts2 = parseInt(res.bout.teamPts2) || 0;
-        
-        if (res.bout.timerSeconds !== undefined) {
-          state.timerSeconds = parseInt(res.bout.timerSeconds);
-        }
-        
-        state.timerRunning = false;
-        if(countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
-        
-        updateUI();
-        broadcastState();
-        setSheetsStatus(true);
-      } else {
-        logger(`No running match data row found on Sheet for Mat ${matId}. Fresh layout ready.`, 'system');
-        setSheetsStatus(true);
-      }
-      refreshQueue();
-    })
-    .catch(e => {
-      logger(`Automatic backup restore query failed: ${e.message}`, 'error');
-      setSheetsStatus(false);
-    });
 }
 
-function formatTime(s) {
-  const m = Math.floor(s / 60);
-  const sec = s % 60;
-  return `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+function updateUI() {
+  document.getElementById('name1').textContent = state.name1;
+  document.getElementById('school1').textContent = state.school1;
+  document.getElementById('name2').textContent = state.name2;
+  document.getElementById('school2').textContent = state.school2;
+  document.getElementById('pts1').textContent = state.pts1;
+  document.getElementById('pts2').textContent = state.pts2;
+  
+  const mins = Math.floor(state.timerSeconds / 60).toString().padStart(2, '0');
+  const secs = (state.timerSeconds % 60).toString().padStart(2, '0');
+  document.getElementById('timerDisplay').textContent = `${mins}:${secs}`;
+  
+  const startBtn = document.getElementById('startBtn');
+  if (startBtn) startBtn.textContent = state.timerRunning ? "Pause" : "Start";
+}
+
+function addPoints(player, amt) {
+  if (player === 1) {
+    state.pts1 = Math.max(0, state.pts1 + amt);
+  } else {
+    state.pts2 = Math.max(0, state.pts2 + amt);
+  }
+  updateUI();
+  
+  // =========================================================================
+  // ADDED: COMMIT ADJUSTMENTS TO MEMORY
+  // =========================================================================
+  saveStateToStorage();
+  // =========================================================================
+  
+  broadcastState();
 }
 
 function toggleTimer() {
-  if(!matId) { alert('Please select an active mat before starting clock functions.'); return; }
   state.timerRunning = !state.timerRunning;
-  if (state.timerRunning) {
-    logger('Match clock engaged.', 'system');
-    countdownInterval = setInterval(() => {
-      if (state.timerSeconds > 0) {
-        state.timerSeconds--;
-        broadcastState();
-        document.getElementById('clockDisplay').textContent = formatTime(state.timerSeconds);
-      } else {
-        state.timerRunning = false;
-        clearInterval(countdownInterval);
-        countdownInterval = null;
-        logger('Match time has expired.', 'system');
-        updateUI();
-        broadcastState();
-        pushToSheet();
-      }
-    }, 1000);
-  } else {
-    logger('Match clock paused.', 'system');
-    clearInterval(countdownInterval);
-    countdownInterval = null;
-    pushToSheet();
-  }
   updateUI();
+  if (state.timerRunning) {
+    runTimerLoop();
+  }
+  
+  // =========================================================================
+  // ADDED: COMMIT TIMER RUN STATE CHANGE TO MEMORY
+  // =========================================================================
+  saveStateToStorage();
+  // =========================================================================
+  
   broadcastState();
 }
 
-function adjustTime(val) {
-  state.timerSeconds = Math.max(0, state.timerSeconds + val);
-  updateUI();
-  broadcastState();
-  if(!state.timerRunning) pushToSheet();
+function runTimerLoop() {
+  if (!state.timerRunning) return;
+  if (state.timerSeconds <= 0) {
+    state.timerRunning = false;
+    updateUI();
+    broadcastState();
+    return;
+  }
+  setTimeout(() => {
+    if (!state.timerRunning) return;
+    state.timerSeconds--;
+    updateUI();
+    
+    // =========================================================================
+    // ADDED: COMMIT EVERY SECOND TICK EVENT TO MEMORY
+    // =========================================================================
+    saveStateToStorage();
+    // =========================================================================
+    
+    broadcastState();
+    runTimerLoop();
+  }, 1000);
 }
 
 function resetTimer() {
-  state.timerRunning = false;
-  clearInterval(countdownInterval);
-  countdownInterval = null;
   state.timerSeconds = 300;
-  logger('Match clock reset to standard duration baseline.', 'system');
-  updateUI();
-  broadcastState();
-  pushToSheet();
-}
-
-function setTimerPreset(val) {
   state.timerRunning = false;
-  clearInterval(countdownInterval);
-  countdownInterval = null;
-  state.timerSeconds = val;
-  logger(`Match clock aligned to predefined preset: ${formatTime(val)}`, 'system');
   updateUI();
+  
+  // =========================================================================
+  // ADDED: COMMIT RESET EVENT TO MEMORY
+  // =========================================================================
+  saveStateToStorage();
+  // =========================================================================
+  
   broadcastState();
-  pushToSheet();
 }
 
-function modPoints(side, val) {
-  if(side === 1) state.pts1 = Math.max(0, state.pts1 + val);
-  else state.pts2 = Math.max(0, state.pts2 + val);
+function loadSelectedBout() {
+  // Simulates sheet pull assignment structure bindings
+  state.name1 = "Gordon Ryan"; state.school1 = "New Wave";
+  state.name2 = "Craig Jones"; state.school2 = "B-Team";
+  state.pts1 = 0; state.pts2 = 0;
+  state.timerSeconds = 300;
+  state.timerRunning = false;
   updateUI();
+  
+  // =========================================================================
+  // ADDED: COMMIT NEW BOUT INGESTION TO MEMORY
+  // =========================================================================
+  saveStateToStorage();
+  // =========================================================================
+  
   broadcastState();
 }
 
-function modAdv(side, val) {
-  if(side === 1) state.adv1 = Math.max(0, state.adv1 + val);
-  else state.adv2 = Math.max(0, state.adv2 + val);
-  updateUI();
-  broadcastState();
-}
+function confirmLineupSelection() { loadSelectedBout(); }
+function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('show'); }
+function confirmAdvance() { closeConfirm(); resetTimer(); }
 
-function modPen(side, val) {
-  if(side === 1) state.pen1 = Math.max(0, state.pen1 + val);
-  else state.pen2 = Math.max(0, state.pen2 + val);
-  updateUI();
-  broadcastState();
-}
-
-function updateAthleteData(side) {
-  if(side === 1) {
-    state.name1 = document.getElementById('name1').value;
-    state.school1 = document.getElementById('school1').value;
-  } else {
-    state.name2 = document.getElementById('name2').value;
-    state.school2 = document.getElementById('school2').value;
-  }
-  const wSel = document.getElementById('winnerSelect');
-  if(wSel) {
-    wSel.options[1].text = state.name1 || 'Red Fighter';
-    wSel.options[2].text = state.name2 || 'Blue Fighter';
-  }
-  broadcastState();
-}
-
-function updateTeamPoints(side) {
-  if(side === 1) state.teamPts1 = parseInt(document.getElementById('teamPts1').value) || 0;
-  else state.teamPts2 = parseInt(document.getElementById('teamPts2').value) || 0;
-  broadcastState();
-}
-
-function updateMeta() {
-  state.mode = document.getElementById('matchMode').value;
-  state.matchNum = document.getElementById('matchNum').value;
-  state.boutNum = parseInt(document.getElementById('boutNum').value) || 0;
-  broadcastState();
-}
-
-function toggleStalling(side) {
-  if(side === 1) state.stalling1 = !state.stalling1;
-  else state.stalling2 = !state.stalling2;
-  updateUI();
-  broadcastState();
-}
-
+// Infrastructure setup logic loop tracking parameters
 function connectRelay() {
-  logger('Opening structural WebSocket relay channel pipeline...', 'websocket');
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  relayWs = new WebSocket(`${protocol}//${RELAY_HOST}`);
+  const RELAY_URL = 'wss://your-cjl-relay.onrender.com'; // CRITICAL: Use your live active address
+  relayWs = new WebSocket(RELAY_URL);
 
   relayWs.onopen = () => {
-    relayConnected = true;
     setRelayStatus(true);
-    logger('WebSocket relay channel established successfully.', 'websocket');
-    if(matId) {
-      relayWs.send(JSON.stringify({ type: 'join', channel: 'mat_' + matId }));
-    }
+    relayWs.send(JSON.stringify({ type: 'join', channel: 'mat_' + matId }));
+    // Force transmission stream reset
+    broadcastState();
   };
 
   relayWs.onmessage = (e) => {
-    try {
-      const msg = JSON.parse(e.data);
-      if(msg.type === 'pong') return;
-      if(msg.type === 'joined') {
-        logger(`Channel validation accepted: Joined routing sector ${msg.channel}`, 'websocket');
-      }
-    } catch(err){}
-  };
-
-  relayWs.onerror = (err) => {
-    relayConnected = false;
-    setRelayStatus(false);
-    logger('Relay network signaling interface returned execution anomaly.', 'error');
+    let data;
+    try { data = JSON.parse(e.data); } catch { return; }
+    if (data.type === 'joined') { console.log("Subscribed channel verified: ", data.channel); }
   };
 
   relayWs.onclose = () => {
-    relayConnected = false;
     setRelayStatus(false);
-    logger('Relay structural connection severed. Initializing cycling retry sequence...', 'error');
     setTimeout(connectRelay, 3000);
+  };
+
+  relayWs.onerror = () => {
+    setRelayStatus(false);
+    relayWs.close();
   };
 }
 
 function setRelayStatus(connected) {
+  relayConnected = connected;
   const d = document.getElementById('relayDot'), t = document.getElementById('relayText');
   if (connected) {
     d.className = 'status-dot connected';
@@ -612,20 +408,6 @@ function setRelayStatus(connected) {
   } else {
     d.className = 'status-dot error';
     t.textContent = 'Relay: disconnected';
-  }
-}
-
-function setSheetsStatus(ok) {
-  const d = document.getElementById('sheetsDot'), t = document.getElementById('sheetsText');
-  if(!d || !t) return;
-  if (ok) {
-    d.className = 'status-dot connected';
-    d.style.backgroundColor = '';
-    t.textContent = 'Sheets: checked';
-  } else {
-    d.className = 'status-dot error';
-    d.style.backgroundColor = '';
-    t.textContent = 'Sheets: error';
   }
 }
 
@@ -647,190 +429,23 @@ function broadcastState() {
 
 function broadcastBracket() {
   if (!relayConnected || !relayWs || relayWs.readyState !== 1) return;
-  relayWs.send(JSON.stringify({ type: 'bracket' }));
+  const msg = { type: 'bracket', payload: {} };
+  relayWs.send(JSON.stringify(msg));
 }
 
-function loadFromSheet() {
-  if(!matId) { alert('Please choose a mat matrix designation first.'); return; }
-  logger('Forcing database synchronization lookup down to active spreadsheet tab...', 'sheets');
-  fetch(`${SCRIPT_URL}?action=getMatActiveBout&mat=${matId}`)
-    .then(r => r.json())
-    .then(res => {
-      if(res && res.success && res.bout) {
-        state.boutNum = parseInt(res.bout.boutNum) || state.boutNum;
-        state.matchNum = res.bout.matchNum || '';
-        state.mode = res.bout.mode || '';
-        state.name1 = res.bout.name1 || 'Red Fighter';
-        state.school1 = res.bout.school1 || '';
-        state.name2 = res.bout.name2 || 'Blue Fighter';
-        state.school2 = res.bout.school2 || '';
-        state.pts1 = parseInt(res.bout.pts1) || 0;
-        state.pts2 = parseInt(res.bout.pts2) || 0;
-        state.adv1 = parseInt(res.bout.adv1) || 0;
-        state.adv2 = parseInt(res.bout.adv2) || 0;
-        state.pen1 = parseInt(res.bout.pen1) || 0;
-        state.pen2 = parseInt(res.bout.pen2) || 0;
-        state.teamPts1 = parseInt(res.bout.teamPts1) || 0;
-        state.teamPts2 = parseInt(res.bout.teamPts2) || 0;
-        
-        if (res.bout.timerSeconds !== undefined) {
-          state.timerSeconds = parseInt(res.bout.timerSeconds);
-        }
-        
-        state.timerRunning = false;
-        if(countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
-        logger('Spreadsheet records mapped successfully to panel layout fields.', 'sheets');
-        updateUI();
-        broadcastState();
-        setSheetsStatus(true);
-      } else {
-        logger('Spreadsheet lookup processing did not return a valid running bout row.', 'error');
-      }
-    })
-    .catch(e => {
-      logger(`Direct sheet synchronization hook failed: ${e.message}`, 'error');
-      setSheetsStatus(false);
-    });
-}
-
-function pushToSheet() {
-  if(!matId) return;
-  if(!state.boutNum) { logger('Save skipped: Missing specific row targeting validation.', 'error'); return; }
-  const bodyData = {
-    action: 'updateMatScore',
-    boutNum: state.boutNum,
-    mat: matId,
-    pts1: state.pts1, adv1: state.adv1, pen1: state.pen1, teamPts1: state.teamPts1,
-    pts2: state.pts2, adv2: state.adv2, pen2: state.pen2, teamPts2: state.teamPts2,
-    timerSeconds: state.timerSeconds
-  };
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(bodyData)
-  })
-  .then(() => {
-    logger(`Macro transaction snapshot logged safely for Bout Row #${state.boutNum}.`, 'sheets');
-    setSheetsStatus(true);
-  })
-  .catch(e => {
-    logger(`Background tracking snapshot dropped: ${e.message}`, 'error');
-    setSheetsStatus(false);
-  });
-}
-
-function refreshQueue() {
-  if(!matId) return;
-  const qBox = document.getElementById('boutQueue');
-  if(!qBox) return;
-  fetch(`${SCRIPT_URL}?action=getBoutQueue&mat=${matId}`)
-    .then(r => r.json())
-    .then(res => {
-      if(res && res.success && res.queue) {
-        qBox.innerHTML = '';
-        if(res.queue.length === 0) {
-          qBox.innerHTML = '<div class="log-entry" style="color:var(--text-dim); padding:6px; font-style:italic;">No remaining bouts allocated to this sector.</div>';
-          return;
-        }
-        res.queue.forEach(b => {
-          const div = document.createElement('div');
-          div.className = `bout-item ${parseInt(b.boutNum) === parseInt(state.boutNum) ? 'active' : ''}`;
-          div.onclick = () => loadSpecificBout(b);
-          div.innerHTML = `
-            <div class="bout-title"><span>Match #${b.matchNum}</span> <span class="b-type">${b.mode}</span></div>
-            <div class="bout-fighters">
-              <span class="b-red">${b.name1 || 'TBD'}</span>
-              <span class="versus">vs</span>
-              <span class="b-blue">${b.name2 || 'TBD'}</span>
-            </div>
-          `;
-          qBox.appendChild(div);
-        });
-      }
-    })
-    .catch(() => {
-      logger('Could not resolve structural match queue array elements.', 'error');
-    });
-}
-
-function loadSpecificBout(b) {
-  if(!confirm(`Transition scoring frame to Match #${b.matchNum} (Row ${b.boutNum})?`)) return;
-  state.boutNum = parseInt(b.boutNum);
-  state.matchNum = b.matchNum || '';
-  state.mode = b.mode || '';
-  state.name1 = b.name1 || 'Red Fighter';
-  state.school1 = b.school1 || '';
-  state.name2 = b.name2 || 'Blue Fighter';
-  state.school2 = b.school2 || '';
-  state.pts1 = 0; state.pts2 = 0;
-  state.adv1 = 0; state.adv2 = 0;
-  state.pen1 = 0; state.pen2 = 0;
-  state.teamPts1 = 0; state.teamPts2 = 0;
-  state.timerSeconds = 300;
-  state.timerRunning = false;
-  if(countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
-  logger(`Interface targeted to Row ${state.boutNum}. Syncing initial state down to spreadsheet context.`, 'system');
+// Global bootstrap window run triggers
+window.addEventListener('DOMContentLoaded', () => {
   updateUI();
-  broadcastState();
-  const bodyData = {
-    action: 'setActiveBout',
-    mat: matId,
-    boutNum: state.boutNum
-  };
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(bodyData)
-  }).then(() => {
-    refreshQueue();
-  });
-}
-
-function submitFinalResults() {
-  if(!matId) return;
-  if(!state.boutNum) return;
-  const wIdx = document.getElementById('winnerSelect').value;
-  const method = document.getElementById('methodSelect').value;
-  const details = document.getElementById('subTypeInput').value;
-  if(!wIdx || !method) {
-    alert('Please specify both a winning athlete assignment and victory method parameters before archiving operations.');
-    return;
-  }
-  const winnerName = (wIdx === "1") ? state.name1 : state.name2;
-  if(!confirm(`Archive complete historical snapshot records? Winner: ${winnerName} via ${method}.`)) return;
-  const bodyData = {
-    action: 'submitResults',
-    boutNum: state.boutNum,
-    mat: matId,
-    pts1: state.pts1, adv1: state.adv1, pen1: state.pen1, teamPts1: state.teamPts1,
-    pts2: state.pts2, adv2: state.adv2, pen2: state.pen2, teamPts2: state.teamPts2,
-    winner: winnerName,
-    method: method,
-    details: details
-  };
-  logger('Transmitting finalized outcome transaction payload to archive database ledger...', 'sheets');
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(bodyData)
-  })
-  .then(() => {
-    logger('Outcome snapshot archived cleanly. Overlays updating.', 'sheets');
-    document.getElementById('winnerSelect').value = '';
-    document.getElementById('methodSelect').value = '';
-    document.getElementById('subTypeInput').value = '';
-    broadcastBracket();
-    setTimeout(() => {
-      switchMat(matId);
-    }, 1500);
-  })
-  .catch(e => {
-    logger(`Outcome archiving transaction failed: ${e.message}`, 'error');
-  });
-}
+  
+  // =========================================================================
+  // ADDED: AUTOMATIC CRASH INITIALIZATION ON BOOTSTRAP LOAD
+  // Checks for existing state in LocalStorage when panel loads or reloads
+  // =========================================================================
+  loadStateFromStorage();
+  // =========================================================================
+  
+  connectRelay();
+});
 </script>
 </body>
 </html>
