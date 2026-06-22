@@ -47,7 +47,8 @@ html,body{width:1920px;height:1080px;background:#0f1117;font-family:'Barlow Cond
 .super-team-score{font-size:28px;font-weight:900;color:#fff;}
 .super-result{font-size:10px;color:#27ae60;letter-spacing:1px;padding:8px 16px;text-transform:uppercase;font-family:'Barlow',sans-serif;border-top:1px solid #22263a;}
 .super-team-info{display:flex;flex-direction:column;gap:1px;}
-.super-athlete-name{font-size:22px;font-weight:900;color:#fff;line-height:1.1;}
+.super-athlete-name{font-size:22px;font-weight:900;color:#ccc;line-height:1.1;}
+.super-athlete-name.winner{color:#fff;}
 .super-team-label{font-size:11px;color:#8890aa;letter-spacing:1px;text-transform:uppercase;font-family:'Barlow',sans-serif;}
 </style>
 </head>
@@ -207,39 +208,51 @@ function makeSuperCard(bout, boutName) {
   const card = document.createElement('div');
   card.className = 'super-card' + (bout && bout.status==='Complete' ? ' complete' : '');
 
-  // Pull athlete names from lineup data for this bout's Match 1
+  // Pull athlete names and result from lineup data for this bout's Match 1
   const lineupMatch = Array.isArray(lineupData)
     ? lineupData.find(r => r.bout === boutName && r.matchNum === 'Match 1')
     : null;
 
-  const t1     = bout ? bout.team1 : 'TBD';
-  const t2     = bout ? bout.team2 : 'TBD';
-  const s1     = bout && bout.team1Score ? bout.team1Score : '';
-  const s2     = bout && bout.team2Score ? bout.team2Score : '';
-  const w      = bout ? bout.winner : '';
-  const a1     = lineupMatch && lineupMatch.athlete1 ? lineupMatch.athlete1 : null;
-  const a2     = lineupMatch && lineupMatch.athlete2 ? lineupMatch.athlete2 : null;
-  const tbd1   = !t1 || t1==='TBD' || t1.startsWith('W-') || t1.startsWith('L-');
-  const tbd2   = !t2 || t2==='TBD' || t2.startsWith('W-') || t2.startsWith('L-');
+  const t1   = bout ? bout.team1 : 'TBD';
+  const t2   = bout ? bout.team2 : 'TBD';
+  const s1   = bout && bout.team1Score ? bout.team1Score : '';
+  const s2   = bout && bout.team2Score ? bout.team2Score : '';
+  const w    = bout ? bout.winner : '';
+  const a1   = lineupMatch && lineupMatch.athlete1 ? lineupMatch.athlete1 : null;
+  const a2   = lineupMatch && lineupMatch.athlete2 ? lineupMatch.athlete2 : null;
+  const tbd1 = !t1 || t1==='TBD' || t1.startsWith('W-') || t1.startsWith('L-');
+  const tbd2 = !t2 || t2==='TBD' || t2.startsWith('W-') || t2.startsWith('L-');
 
-  const label1 = a1 ? `<span class="super-athlete-name">${a1}</span><span class="super-team-label">${tbd1 ? '' : t1}</span>`
-                    : `<span class="super-team-name${w===t1?' winner':''}${tbd1?' tbd':''}">${t1||'TBD'}</span>`;
-  const label2 = a2 ? `<span class="super-athlete-name">${a2}</span><span class="super-team-label">${tbd2 ? '' : t2}</span>`
-                    : `<span class="super-team-name${w===t2?' winner':''}${tbd2?' tbd':''}">${t2||'TBD'}</span>`;
+  // Figure out which athlete won and how
+  const isA1Winner = w && a1 && w === a1;
+  const isA2Winner = w && a2 && w === a2;
+  const isT1Winner = w && w === t1;
+  const isT2Winner = w && w === t2;
+  const winnerName = isA1Winner ? a1 : isA2Winner ? a2 : w;
+  const resultMethod = lineupMatch && lineupMatch.result ? lineupMatch.result : (bout ? bout.resultType : '');
 
-  const winnerAthleteOrTeam = w;
+  const label1 = a1
+    ? `<span class="super-athlete-name${isA1Winner?' winner':''}">${a1}</span><span class="super-team-label">${tbd1?'':t1}</span>`
+    : `<span class="super-team-name${isT1Winner?' winner':''}${tbd1?' tbd':''}">${t1||'TBD'}</span>`;
+  const label2 = a2
+    ? `<span class="super-athlete-name${isA2Winner?' winner':''}">${a2}</span><span class="super-team-label">${tbd2?'':t2}</span>`
+    : `<span class="super-team-name${isT2Winner?' winner':''}${tbd2?' tbd':''}">${t2||'TBD'}</span>`;
+
+  const resultLine = bout && bout.status==='Complete'
+    ? `<div class="super-result">🏆 ${winnerName} wins${resultMethod ? ' · ' + resultMethod : ''}</div>`
+    : '';
 
   card.innerHTML = `
     <div class="super-title">${boutName}</div>
-    <div class="super-team${w&&(w===a1||w===t1)?' winner':''}">
+    <div class="super-team${isA1Winner||isT1Winner?' winner':''}">
       <div class="super-team-info">${label1}</div>
       <span class="super-team-score">${s1}</span>
     </div>
-    <div class="super-team${w&&(w===a2||w===t2)?' winner':''}">
+    <div class="super-team${isA2Winner||isT2Winner?' winner':''}">
       <div class="super-team-info">${label2}</div>
       <span class="super-team-score">${s2}</span>
     </div>
-    ${bout && bout.status==='Complete' ? `<div class="super-result">✓ ${w} wins</div>` : ''}
+    ${resultLine}
   `;
   return card;
 }
