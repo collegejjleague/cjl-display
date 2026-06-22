@@ -334,6 +334,7 @@ function tryRestoreFromLS(id){
   return true;
 }
 async function init(){setStatus('connecting');try{await Promise.all([loadBracket(),loadTeams()]);setStatus('connected');populateBoutSelect();if(tryRestoreFromLS(matId)){document.getElementById('boutSelect').value=state.boutNum;document.getElementById('lineupGrid').style.display='none';document.getElementById('confirmLineupBtn').style.display='none';updateMatchResultsLog();if(state.timerRunning)startTimer();}buildMatchProgress();renderAll();setInterval(syncToSheet,2000);}catch(e){setStatus('error');setTimeout(init,5000);}}
+async function loadBracket(){boutData=await sheetGet('getBracket');}
 async function reloadBracket(){const btn=document.getElementById('reloadBracketBtn');if(btn){btn.textContent='⏳ Refreshing...';btn.disabled=true;}try{await loadBracket();populateBoutSelect();logAction('🔄 Bracket refreshed');}catch(e){logAction('⚠️ Bracket refresh failed — check connection');}finally{if(btn){btn.textContent='🔄 Refresh Bracket';btn.disabled=false;}}}
 setInterval(reloadBracket, 60000); // auto-refresh bracket every 60s so other mats' completed bouts disappear passively
 async function loadTeams(){teams=await sheetGet('getTeams');}
