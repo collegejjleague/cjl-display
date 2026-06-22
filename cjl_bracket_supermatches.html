@@ -46,6 +46,9 @@ html,body{width:1920px;height:1080px;background:#0f1117;font-family:'Barlow Cond
 .super-team-name.tbd{color:#555;font-style:italic;font-weight:400;}
 .super-team-score{font-size:28px;font-weight:900;color:#fff;}
 .super-result{font-size:10px;color:#27ae60;letter-spacing:1px;padding:8px 16px;text-transform:uppercase;font-family:'Barlow',sans-serif;border-top:1px solid #22263a;}
+.super-team-info{display:flex;flex-direction:column;gap:1px;}
+.super-athlete-name{font-size:22px;font-weight:900;color:#fff;line-height:1.1;}
+.super-team-label{font-size:11px;color:#8890aa;letter-spacing:1px;text-transform:uppercase;font-family:'Barlow',sans-serif;}
 </style>
 </head>
 <body>
@@ -119,11 +122,18 @@ const IS_CHAMP = false;
 const IS_SUPER = true;
 
 let allBouts = [];
+let lineupData = [];
 
 async function loadBracket() {
   try {
-    const res = await fetch(SHEET_URL + '?action=getBracket', {redirect:'follow'});
-    allBouts = JSON.parse(await res.text());
+    const [bracketRes, lineupRes] = await Promise.all([
+      fetch(SHEET_URL + '?action=getBracket', {redirect:'follow'}),
+      fetch(SHEET_URL + '?action=getLineup', {redirect:'follow'}).catch(() => null)
+    ]);
+    allBouts = JSON.parse(await bracketRes.text());
+    if (lineupRes) {
+      try { lineupData = JSON.parse(await lineupRes.text()); } catch(e) { lineupData = []; }
+    }
     renderBracket();
   } catch(e) {
     document.getElementById('bracket').innerHTML = '<div style="color:#e24b4a;font-size:18px;margin:auto;">Connection error — retrying...</div>';
@@ -196,21 +206,37 @@ function renderSupermatches(container) {
 function makeSuperCard(bout, boutName) {
   const card = document.createElement('div');
   card.className = 'super-card' + (bout && bout.status==='Complete' ? ' complete' : '');
-  const t1 = bout ? bout.team1 : 'TBD';
-  const t2 = bout ? bout.team2 : 'TBD';
-  const s1 = bout && bout.team1Score ? bout.team1Score : '';
-  const s2 = bout && bout.team2Score ? bout.team2Score : '';
-  const w  = bout ? bout.winner : '';
-  const tbd1 = !t1 || t1==='TBD' || t1.startsWith('W-') || t1.startsWith('L-');
-  const tbd2 = !t2 || t2==='TBD' || t2.startsWith('W-') || t2.startsWith('L-');
+
+  // Pull athlete names from lineup data for this bout's Match 1
+  const lineupMatch = Array.isArray(lineupData)
+    ? lineupData.find(r => r.bout === boutName && r.matchNum === 'Match 1')
+    : null;
+
+  const t1     = bout ? bout.team1 : 'TBD';
+  const t2     = bout ? bout.team2 : 'TBD';
+  const s1     = bout && bout.team1Score ? bout.team1Score : '';
+  const s2     = bout && bout.team2Score ? bout.team2Score : '';
+  const w      = bout ? bout.winner : '';
+  const a1     = lineupMatch && lineupMatch.athlete1 ? lineupMatch.athlete1 : null;
+  const a2     = lineupMatch && lineupMatch.athlete2 ? lineupMatch.athlete2 : null;
+  const tbd1   = !t1 || t1==='TBD' || t1.startsWith('W-') || t1.startsWith('L-');
+  const tbd2   = !t2 || t2==='TBD' || t2.startsWith('W-') || t2.startsWith('L-');
+
+  const label1 = a1 ? `<span class="super-athlete-name">${a1}</span><span class="super-team-label">${tbd1 ? '' : t1}</span>`
+                    : `<span class="super-team-name${w===t1?' winner':''}${tbd1?' tbd':''}">${t1||'TBD'}</span>`;
+  const label2 = a2 ? `<span class="super-athlete-name">${a2}</span><span class="super-team-label">${tbd2 ? '' : t2}</span>`
+                    : `<span class="super-team-name${w===t2?' winner':''}${tbd2?' tbd':''}">${t2||'TBD'}</span>`;
+
+  const winnerAthleteOrTeam = w;
+
   card.innerHTML = `
     <div class="super-title">${boutName}</div>
-    <div class="super-team${w===t1?' winner':''}">
-      <span class="super-team-name${w===t1?' winner':''}${tbd1?' tbd':''}">${t1||'TBD'}</span>
+    <div class="super-team${w&&(w===a1||w===t1)?' winner':''}">
+      <div class="super-team-info">${label1}</div>
       <span class="super-team-score">${s1}</span>
     </div>
-    <div class="super-team${w===t2?' winner':''}">
-      <span class="super-team-name${w===t2?' winner':''}${tbd2?' tbd':''}">${t2||'TBD'}</span>
+    <div class="super-team${w&&(w===a2||w===t2)?' winner':''}">
+      <div class="super-team-info">${label2}</div>
       <span class="super-team-score">${s2}</span>
     </div>
     ${bout && bout.status==='Complete' ? `<div class="super-result">✓ ${w} wins</div>` : ''}
