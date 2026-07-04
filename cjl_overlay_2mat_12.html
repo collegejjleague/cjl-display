@@ -106,7 +106,7 @@ html, body {
 <div id="m1_name1" class="el top-name" style="left:80px; width:250px; justify-content:flex-start;"></div>
 <div id="m1_score1" class="el top-score" style="left:341px; width:90px;"></div>
 <svg id="m1_slash2" class="slash-svg" style="left:444px;"><use href="#slashShape"/></svg>
-<div id="m1_name2" class="el top-name" style="left:345px; width:225px; justify-content:flex-end;"></div>
+<div id="m1_name2" class="el top-name" style="left:500px; width:215px; justify-content:flex-end;"></div>
 <div id="m1_score2" class="el top-score" style="left:726px; width:90px;"></div>
 <div id="m1_match_counter" class="el match-counter" style="left:318px; width:219px;"></div>
 
@@ -122,7 +122,7 @@ html, body {
 
 <!-- ================= MAT 2 (right) : circle, name, slash, circle, name, slash ================= -->
 <div id="m2_score1" class="el top-score" style="left:1105px; width:90px;"></div>
-<div id="m2_name1" class="el top-name" style="left:1245px; width:260px; justify-content:flex-start;"></div>
+<div id="m2_name1" class="el top-name" style="left:1205px; width:213px; justify-content:flex-start;"></div>
 <svg id="m2_slash1" class="slash-svg slash-flip" style="left:1428px;"><use href="#slashShape"/></svg>
 <div id="m2_score2" class="el top-score" style="left:1487px; width:90px;"></div>
 <div id="m2_name2" class="el top-name" style="left:1600px; width:245px; justify-content:flex-end;"></div>
@@ -174,8 +174,8 @@ function makeMat(matId) {
   function render() {
     document.getElementById(p+'name1').textContent = state.school1;
     document.getElementById(p+'name2').textContent = state.school2;
-    var n1w = matId===1 ? 250 : 260;
-    var n2w = matId===1 ? 225 : 245;
+    var n1w = matId===1 ? 250 : 213;
+    var n2w = matId===1 ? 215 : 245;
     autoScaleName(p+'name1', state.school1, 50, 20, n1w);
     autoScaleName(p+'name2', state.school2, 50, 20, n2w);
     document.getElementById(p+'score1').textContent = state.teamPts1;
