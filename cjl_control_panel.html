@@ -134,6 +134,7 @@ kbd{background:var(--surface2);padding:1px 5px;border-radius:3px;color:#fff;font
     <span class="status-dot" id="relayDot" style="margin-left:10px;"></span>
     <span class="status-text" id="relayText">Relay: connecting...</span>
     <button class="btn btn-grey" id="reloadBracketBtn" onclick="reloadBracket()" style="margin-left:10px;font-size:11px;padding:4px 10px;" title="Refresh bracket from Sheet — use after another mat submits a bout">🔄 Refresh Bracket</button>
+    <button class="btn btn-grey" id="clearHistoryBtn" onclick="clearPublicHistory()" style="margin-left:6px;font-size:11px;padding:4px 10px;" title="Wipes the public status page's Match History tab for everyone. Use once the tournament is fully done.">🗑️ Clear Public History</button>
   </div>
   <div class="mode-tabs">
     <div class="mode-tab active" onclick="setMode('mens')" id="tab-mens">Men's</div>
@@ -398,6 +399,13 @@ document.addEventListener('keydown',e=>{if(e.target.tagName==='SELECT'||e.target
 const RELAY_URL = 'wss://cjl-relay.onrender.com';
 let relayWs = null;
 let relayConnected = false;
+
+function clearPublicHistory() {
+  if (!confirm('This wipes the Match History tab on the public status page for everyone. This cannot be undone. Continue?')) return;
+  fetch('https://cjl-relay.onrender.com/clear-history', { method: 'POST' })
+    .then(() => logAction('🗑️ Public match history cleared.'))
+    .catch(() => alert('Could not reach the relay — history was not cleared. Check your connection and try again.'));
+}
 
 function connectRelay() {
   try {
